@@ -26,7 +26,7 @@ SOFTWARE.
 #include "cli_parser.h"
 #include "cli_flag.h"
 
-TEST_CASE("add argument with name", "[Arguments]")
+TEST_CASE("add-argument-with-name", "[Parser]")
 {
   Cli::Parser args;
   auto flag = args.add(std::make_shared<Cli::Flag>("myflag"));
@@ -44,7 +44,7 @@ TEST_CASE("add argument with name", "[Arguments]")
   REQUIRE_FALSE(args.isSet('g'));
 }
 
-TEST_CASE("add argument with shortName", "[Arguments]")
+TEST_CASE("add-argument-with-shortName", "[Parser]")
 {
   Cli::Parser args;
   auto flag = args.add(std::make_shared<Cli::Flag>('f'));
@@ -62,7 +62,7 @@ TEST_CASE("add argument with shortName", "[Arguments]")
   REQUIRE_FALSE(args.isSet('g'));
 }
 
-TEST_CASE("add argument with name and shortName", "[Arguments]")
+TEST_CASE("add-argument-with-name-and-shortName", "[Parser]")
 {
   Cli::Parser args;
   auto flag = args.add(std::make_shared<Cli::Flag>('f', "myflag"));
@@ -82,12 +82,39 @@ TEST_CASE("add argument with name and shortName", "[Arguments]")
   REQUIRE_FALSE(args.isSet('g'));
 }
 
-TEST_CASE("first trival test", "[Parser]")
+TEST_CASE("parse-flags", "[Parser]")
 {
-  //int argc = 4;
-  //const char * argv[] = { "progr", "--flag1", "-g", "-hij", "--flag2" };
-  //Cli::Parser parser;
-  //parser.parse(sizeof(argv)/sizeof(char*), argv);
-  //REQUIRE(true);
+  Cli::Parser parser;
+  auto flag1 = parser.add(std::make_shared<Cli::Flag>('f', "flag1"));
+  auto flag2 = parser.add(std::make_shared<Cli::Flag>('g', "flag2"));
+  auto flagh = parser.add(std::make_shared<Cli::Flag>('h'));
+  auto flag3 = parser.add(std::make_shared<Cli::Flag>("flag3"));
+  {
+    const char * argv[] = { "progr" };
+    std::vector<std::string> err;
+    REQUIRE(parser.parse(sizeof(argv)/sizeof(char*), argv, err));
+    REQUIRE(err.empty());
+    REQUIRE_FALSE(parser.isSet("flag1"));
+    REQUIRE_FALSE(parser.isSet("flag2"));
+    REQUIRE_FALSE(parser.isSet("flag3"));
+    REQUIRE_FALSE(parser.isSet('h'));
+
+  }
+  {
+    const char * argv[] = { "progr", "--flag1", "-gh", "--flag3"};
+    std::vector<std::string> err;
+    REQUIRE(parser.parse(sizeof(argv)/sizeof(char*), argv, err));
+    REQUIRE(err.empty());
+    REQUIRE(parser.isSet("flag1"));
+    REQUIRE(parser.isSet("flag2"));
+    REQUIRE(parser.isSet("flag3"));
+    REQUIRE(parser.isSet('h'));
+  }
+  {
+    const char * argv[] = { "progr", "--flag1", "-f", "--flag1"};
+    std::vector<std::string> err;
+    REQUIRE_FALSE(parser.parse(sizeof(argv)/sizeof(char*), argv, err));
+    REQUIRE(err.size() == 1u);
+  }
 }
 

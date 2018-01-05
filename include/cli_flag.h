@@ -36,6 +36,11 @@ namespace Cli
     {
     }
 
+    virtual bool isFlag() const
+    {
+      return true;
+    }
+
     std::string getName() const override
     {
       return name;

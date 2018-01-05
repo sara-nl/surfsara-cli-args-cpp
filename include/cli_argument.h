@@ -36,6 +36,11 @@ namespace Cli
     virtual bool parse(int argc, const char ** argv,
                        int & i, std::vector<std::string> & err) = 0;
 
+    virtual bool isFlag() const
+    {
+      return false;
+    }
+
     bool parse(int argc, const char ** argv, int & i)
     {
       std::vector<std::string> err;

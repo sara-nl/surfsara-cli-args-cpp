@@ -85,7 +85,14 @@ namespace Cli
 
     bool parse(int argc, const char ** argv) const
     {
+      std::vector<std::string> err;
+      return parse(argc, argv, err);
+    }
+
+    bool parse(int argc, const char ** argv, std::vector<std::string> & err) const
+    {
       int i;
+      bool ret = true;
       for(i = 1; i < argc; i++)
       {
         std::size_t len = strlen(argv[i]);
@@ -94,10 +101,12 @@ namespace Cli
         if(len > 1 && argv[i][0] == '-' && argv[i][1] == '-' &&
            (nitr = name2argument.find(argv[i] + 2) ) != name2argument.end())
         {
+          ret&= nitr->second->parse(argc, argv, i, err);
         }
         else if(len == 2 && argv[i][0] == '-' && argv[i][1] != '-' &&
                 (sitr =  shortname2argument.find(argv[i][1])) != shortname2argument.end())
         {
+          ret&= sitr->second->parse(argc, argv, i, err);
         }
         else if(len > 2 && argv[i][0] == '-' && argv[i][1] != '-')
         {
@@ -106,19 +115,30 @@ namespace Cli
           {
             if( (sitr = shortname2argument.find(argv[i][j])) != shortname2argument.end())
             {
+              if(sitr->second->isFlag())
+              {
+                ret&= sitr->second->parse(argc, argv, i, err);
+              }
+              else
+              {
+                /* error */
+                ret = false;
+              }
             }
             else
             {
               /* error */
+              ret = false;
             }
           }
         }
         else
         {
           /* error */
+          ret = false;
         }
       }
-      return true;
+      return ret;
     }
 
     
