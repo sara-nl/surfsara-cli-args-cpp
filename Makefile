@@ -6,7 +6,8 @@ CXX_DEPFLAGS= -MT $@ -MMD -MP -MF obj/$*.td
 INCLUDE_TEST=-ICatch2/single_include -Iinclude
 
 SRC_TEST= 	test/runtests.cpp \
-		test/test_parser.cpp
+		test/test_parser.cpp \
+		test/test_flag.cpp
 
 OBJ_TEST= $(patsubst test/%.cpp, obj/%.o, $(SRC_TEST) )
 
