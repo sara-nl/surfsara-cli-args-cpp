@@ -25,7 +25,7 @@ SOFTWARE.
 #include <catch.hpp>
 #include "cli_multiple_flag.h"
 
-TEST_CASE("multiple-flag-constructor-with-name", "[Flag]")
+TEST_CASE("multiple-flag-constructor-with-name", "[MultipleFlag]")
 {
   REQUIRE(Cli::MultipleFlag("name").isFlag());
   REQUIRE(Cli::MultipleFlag("name").getName() == "name");
@@ -33,7 +33,7 @@ TEST_CASE("multiple-flag-constructor-with-name", "[Flag]")
   REQUIRE_FALSE(Cli::MultipleFlag("name").isSet());
 }
 
-TEST_CASE("multiple-flag-constructor-with-short-name", "[Flag]")
+TEST_CASE("multiple-flag-constructor-with-short-name", "[MultipleFlag]")
 {
   REQUIRE(Cli::MultipleFlag('n').isFlag());
   REQUIRE(Cli::MultipleFlag('n').getName() == "");
@@ -41,7 +41,7 @@ TEST_CASE("multiple-flag-constructor-with-short-name", "[Flag]")
   REQUIRE_FALSE(Cli::MultipleFlag('n').isSet());
 }
 
-TEST_CASE("multiple-flag-constructor-with-name-and-short-name", "[Flag]")
+TEST_CASE("multiple-flag-constructor-with-name-and-short-name", "[MultipleFlag]")
 {
   REQUIRE(Cli::MultipleFlag('n', "name").isFlag());
   REQUIRE(Cli::MultipleFlag('n', "name").getName() == "name");
@@ -49,7 +49,7 @@ TEST_CASE("multiple-flag-constructor-with-name-and-short-name", "[Flag]")
   REQUIRE_FALSE(Cli::MultipleFlag('n').isSet());
 }
 
-TEST_CASE("multiple-flag-parse", "[Flag]")
+TEST_CASE("multiple-flag-parse", "[MultipleFlag]")
 {
   Cli::MultipleFlag flag("name");
   int argc;
