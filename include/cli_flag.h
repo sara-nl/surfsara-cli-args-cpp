@@ -64,7 +64,7 @@ namespace Cli
       if(flagset && !twice)
       {
         twice = true;
-        err.push_back(std::string("flag ") + getName() +
+        err.push_back(std::string("flag ") + getFlagAsString() +
                       std::string(" set twice."));
         return false;
       }
@@ -80,6 +80,19 @@ namespace Cli
     std::string name;
     bool flagset;
     bool twice;
+
+    std::string getFlagAsString() const
+    {
+      if(name.empty())
+      {
+        return std::string("-") + shortname;
+      }
+      else
+      {
+        return std::string("--") + name;
+      }
+    }
+
   };
 }
 
