@@ -8,7 +8,8 @@ INCLUDE_TEST=-ICatch2/single_include -Iinclude
 SRC_TEST= 	test/runtests.cpp \
 		test/test_parser.cpp \
 		test/test_flag.cpp \
-		test/test_multiple_flag.cpp
+		test/test_multiple_flag.cpp \
+		test/test_value.cpp
 
 OBJ_TEST= $(patsubst test/%.cpp, obj/%.o, $(SRC_TEST) )
 

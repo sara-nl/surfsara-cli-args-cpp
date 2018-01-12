@@ -21,26 +21,30 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. */
 #pragma once
+#include <string>
+#include <sstream>
+#include <typeinfo>
 #include "cli_argument.h"
 
 namespace Cli
 {
-  class Flag : public Argument
+  template<typename T>
+  class Value : public Argument
   {
   public:
-    Flag(const std::string & _name) :
-      shortname('\0'), name(_name), flagset(false), twice(false)
+    Value(const std::string & _name) :
+      shortname('\0'), name(_name), valueset(false), twice(false)
     {
     }
 
-    Flag(char _shortname, const std::string & _name="") :
-      shortname(_shortname), name(_name), flagset(false), twice(false)
+    Value(char _shortname, const std::string & _name="") :
+      shortname(_shortname), name(_name), valueset(false), twice(false)
     {
     }
 
     virtual bool isFlag() const
     {
-      return true;
+      return false;
     }
 
     std::string getName() const override
@@ -55,30 +59,43 @@ namespace Cli
 
     bool isSet() const override
     {
-      return flagset;
+      return valueset;
     }
 
     bool parse(int argc, const char ** argv,
                int & i, std::vector<std::string> & err) override
     {
-      if(flagset && !twice)
+      if( i + 1 >= argc)
+      {
+        err.push_back(getFlagAsString() + " requires an argument");
+        return false;
+      }
+      i++;
+      if(valueset && !twice)
       {
         twice = true;
-        err.push_back(std::string("flag ") + getFlagAsString() +
+        err.push_back(std::string("value ") + getFlagAsString() +
                       std::string(" set twice."));
         return false;
       }
-      else
+      valueset = true;
+      std::stringstream stream(argv[i]);
+      stream >> value;
+      if(stream.fail() || !stream.eof()) 
       {
-        flagset = true;
-        return true;
+        err.push_back(std::string(argv[i]) +
+                      " is not a valid " +
+                      typeid(T).name());
+        return false;
       }
+      return true;
     }
 
   private:
     char shortname;
     std::string name;
-    bool flagset;
+    T value;
+    bool valueset;
     bool twice;
 
     std::string getFlagAsString() const
@@ -92,6 +109,6 @@ namespace Cli
         return std::string("--") + name;
       }
     }
-
   };
 }
+
