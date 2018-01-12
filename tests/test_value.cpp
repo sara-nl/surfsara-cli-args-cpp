@@ -27,31 +27,35 @@ SOFTWARE.
 
 TEST_CASE("value-constructor-with-name", "[Value]")
 {
-  REQUIRE_FALSE(Cli::Value<int>("name").isFlag());
-  REQUIRE(Cli::Value<int>("name").getName() == "name");
-  REQUIRE(Cli::Value<int>("name").getShortName() == '\0');
-  REQUIRE_FALSE(Cli::Value<int>("name").isSet());
+  int v = 0;
+  REQUIRE_FALSE(Cli::Value<int>(v, "name").isFlag());
+  REQUIRE(Cli::Value<int>(v, "name").getName() == "name");
+  REQUIRE(Cli::Value<int>(v, "name").getShortName() == '\0');
+  REQUIRE_FALSE(Cli::Value<int>(v, "name").isSet());
 }
 
 TEST_CASE("value-constructor-with-short-name", "[Value]")
 {
-  REQUIRE_FALSE(Cli::Value<int>('n').isFlag());
-  REQUIRE(Cli::Value<int>('n').getName() == "");
-  REQUIRE(Cli::Value<int>('n').getShortName() == 'n');
-  REQUIRE_FALSE(Cli::Value<int>('n').isSet());
+  int v = 0;
+  REQUIRE_FALSE(Cli::Value<int>(v, 'n').isFlag());
+  REQUIRE(Cli::Value<int>(v, 'n').getName() == "");
+  REQUIRE(Cli::Value<int>(v, 'n').getShortName() == 'n');
+  REQUIRE_FALSE(Cli::Value<int>(v, 'n').isSet());
 }
 
 TEST_CASE("value-constructor-with-name-and-short-name", "[Value]")
 {
-  REQUIRE_FALSE(Cli::Value<int>('n', "name").isFlag());
-  REQUIRE(Cli::Value<int>('n', "name").getName() == "name");
-  REQUIRE(Cli::Value<int>('n', "name").getShortName() == 'n');
-  REQUIRE_FALSE(Cli::Value<int>('n').isSet());
+  int v = 0;
+  REQUIRE_FALSE(Cli::Value<int>(v, 'n', "name").isFlag());
+  REQUIRE(Cli::Value<int>(v, 'n', "name").getName() == "name");
+  REQUIRE(Cli::Value<int>(v, 'n', "name").getShortName() == 'n');
+  REQUIRE_FALSE(Cli::Value<int>(v, 'n').isSet());
 }
 
 TEST_CASE("value-parse", "[Value]")
 {
-  Cli::Value<int> value("name");
+  int v = 0;
+  Cli::Value<int> value(v, "name");
   int argc;
   const char * argv[] = { "progr", "--name", "12" };
   std::vector<std::string> err;
@@ -60,26 +64,31 @@ TEST_CASE("value-parse", "[Value]")
   REQUIRE(err.empty());
   REQUIRE(value.isSet());
   REQUIRE(i == 2);
+  REQUIRE(v == 12);
 }
 
-TEST_CASE("value-parse-twice", "[Flag]")
+TEST_CASE("value-parse-twice", "[Value]")
 {
-  Cli::Value<int> value("name");
+  int v = 0;
+  Cli::Value<int> value(v, "name");
   int argc;
-  const char * argv[] = { "progr", "--name", "12" };
+  const char * argv1[] = { "progr", "--name", "12" };
+  const char * argv2[] = { "progr", "--name", "13" };
   std::vector<std::string> err;
   int i = 1;
-  REQUIRE(value.parse(sizeof(argv)/sizeof(char*), argv, i, err));
+  REQUIRE(value.parse(sizeof(argv1)/sizeof(char*), argv1, i, err));
   REQUIRE(err.empty());
   REQUIRE(value.isSet());
   REQUIRE(i == 2);
-  REQUIRE_FALSE(value.parse(sizeof(argv)/sizeof(char*), argv, i, err));
+  REQUIRE_FALSE(value.parse(sizeof(argv2)/sizeof(char*), argv2, i, err));
   REQUIRE(err.size() == 1u);
+  REQUIRE(v == 12);
 }
 
-TEST_CASE("value-parse-argument-required", "[Flag]")
+TEST_CASE("value-parse-argument-required", "[Value]")
 {
-  Cli::Value<int> value("name");
+  int v = 0;
+  Cli::Value<int> value(v, "name");
   int argc;
   const char * argv[] = { "progr", "--name" };
   std::vector<std::string> err;
@@ -88,11 +97,13 @@ TEST_CASE("value-parse-argument-required", "[Flag]")
   REQUIRE(err.size() == 1u);
   REQUIRE_FALSE(value.isSet());
   REQUIRE(i == 1);
+  REQUIRE(v == 0);
 }
 
 TEST_CASE("value-parse-invalid-value", "[Value]")
 {
-  Cli::Value<int> value("name");
+  int v = 0;
+  Cli::Value<int> value(v, "name");
   int argc;
   const char * argv[] = { "progr", "--name", "12xx" };
   std::vector<std::string> err;
@@ -101,5 +112,6 @@ TEST_CASE("value-parse-invalid-value", "[Value]")
   REQUIRE(err.size() == 1u);
   REQUIRE(value.isSet());
   REQUIRE(i == 2);
+  REQUIRE(v == 0);
 }
 

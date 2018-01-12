@@ -32,13 +32,15 @@ namespace Cli
   class Value : public Argument
   {
   public:
-    Value(const std::string & _name) :
-      shortname('\0'), name(_name), valueset(false), twice(false)
+    Value(T & _refValue, const std::string & _name) :
+      refValue(_refValue), shortname('\0'), name(_name),
+      valueset(false), twice(false)
     {
     }
 
-    Value(char _shortname, const std::string & _name="") :
-      shortname(_shortname), name(_name), valueset(false), twice(false)
+    Value(T & _refValue, char _shortname, const std::string & _name="") :
+      refValue(_refValue), shortname(_shortname), name(_name),
+      valueset(false), twice(false)
     {
     }
 
@@ -80,6 +82,7 @@ namespace Cli
       }
       valueset = true;
       std::stringstream stream(argv[i]);
+      T value;
       stream >> value;
       if(stream.fail() || !stream.eof()) 
       {
@@ -88,13 +91,14 @@ namespace Cli
                       typeid(T).name());
         return false;
       }
+      refValue = value;
       return true;
     }
 
   private:
+    T & refValue;
     char shortname;
     std::string name;
-    T value;
     bool valueset;
     bool twice;
 
