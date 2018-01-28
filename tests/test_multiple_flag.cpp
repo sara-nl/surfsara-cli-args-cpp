@@ -23,7 +23,7 @@ SOFTWARE.
 */
 
 #include <catch.hpp>
-#include "cli_multiple_flag.h"
+#include <cli_multiple_flag.h>
 
 TEST_CASE("multiple-flag-constructor-with-name", "[MultipleFlag]")
 {

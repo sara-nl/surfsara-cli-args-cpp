@@ -23,7 +23,7 @@ SOFTWARE.
 */
 
 #include <catch.hpp>
-#include "cli_value.h"
+#include <cli_value.h>
 
 TEST_CASE("value-constructor-with-name", "[Value]")
 {

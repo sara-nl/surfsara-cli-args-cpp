@@ -23,7 +23,7 @@ SOFTWARE.
 */
 
 #include <catch.hpp>
-#include "cli_flag.h"
+#include <cli_flag.h>
 
 TEST_CASE("flag-constructor-with-name", "[Flag]")
 {

@@ -23,8 +23,8 @@ SOFTWARE.
 */
 
 #include <catch.hpp>
-#include "cli_parser.h"
-#include "cli_flag.h"
+#include <cli_parser.h>
+#include <cli_flag.h>
 
 TEST_CASE("add-argument-with-name", "[Parser]")
 {
