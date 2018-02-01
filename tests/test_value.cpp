@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. 
 */
 #include <catch.hpp>
-#include "cli_value.h"
+#include <cli_value.h>
 
 using IntValue = Cli::Value<int>;
 

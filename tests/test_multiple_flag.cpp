@@ -23,7 +23,7 @@ SOFTWARE.
 */
 
 #include <catch.hpp>
-#include "cli_multiple_flag.h"
+#include <cli_multiple_flag.h>
 
 using MultipleFlag = Cli::MultipleFlag;
 

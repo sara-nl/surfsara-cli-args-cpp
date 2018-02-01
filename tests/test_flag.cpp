@@ -24,7 +24,7 @@ SOFTWARE.
 
 #include <sstream>
 #include <catch.hpp>
-#include "cli_flag.h"
+#include <cli_flag.h>
 
 using Flag = Cli::Flag;
 using Argument = Cli::Argument;

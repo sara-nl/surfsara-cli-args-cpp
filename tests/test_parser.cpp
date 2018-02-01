@@ -23,8 +23,8 @@ SOFTWARE.
 */
 
 #include <catch.hpp>
-#include "cli_parser.h"
-#include "cli_flag.h"
+#include <cli_parser.h>
+#include <cli_flag.h>
 
 using Parser = Cli::Parser;
 using Flag = Cli::Flag;
