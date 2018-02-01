@@ -10,7 +10,7 @@ A c++ compiler with c++11 standard. The following compilers have been tested:
 * Visual C++ 2017
 
 ## Building the example application
-The following program illustrates the basic usage of the program.
+The following program illustrates the basic usage of the library.
 ```cpp
 #include <cli.h>
 #include <vector>
