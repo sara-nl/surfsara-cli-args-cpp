@@ -32,27 +32,28 @@ SOFTWARE. */
 namespace Cli
 {
   template<typename T>
-  class Value : public Argument
+  class MultipleValue : public Argument
   {
   public:
-    typedef Value<T> self_type;
+    typedef MultipleValue<T> self_type;
+    typedef std::vector<T> vector_type;
     typedef std::shared_ptr<self_type> shared_type;
 
-    static shared_type make(T & _refValue,
+    static shared_type make(vector_type & _refValue,
                             const std::string & _name,
                             const Doc & _doc=Doc(""))
     {
       return shared_type(new self_type(_refValue, '\0', _name, _doc));
     }
 
-    static shared_type make(T & _refValue,
+    static shared_type make(vector_type & _refValue,
                             char _shortname,
                             const Doc & _doc=Doc(""))
     {
       return shared_type(new self_type(_refValue, _shortname, "", _doc));
     }
 
-    static shared_type make(T & _refValue,
+    static shared_type make(vector_type & _refValue,
                             char _shortname,
                             const std::string & _name,
                             const Doc & _doc=Doc("")) 
@@ -79,13 +80,6 @@ namespace Cli
         return false;
       }
       i++;
-      if(valueset && !twice)
-      {
-        twice = true;
-        err.push_back(std::string("value ") + getFullName() +
-                      std::string(" set twice."));
-        return false;
-      }
       valueset = true;
       std::stringstream stream(argv[i]);
       T value;
@@ -97,23 +91,21 @@ namespace Cli
                       typeid(T).name());
         return false;
       }
-      refValue = value;
+      refValue.push_back(value);
       return true;
     }
 
   private:
-    T & refValue;
+    vector_type & refValue;
     bool valueset;
-    bool twice;
-
-    Value(T & _refValue,
-          char _shortname,
-          const std::string & _name,
-          const Doc & _doc=Doc("")) :
+    
+    MultipleValue(vector_type & _refValue,
+                  char _shortname,
+                  const std::string & _name,
+                  const Doc & _doc=Doc("")) :
       Argument(_shortname, _name, _doc),
       refValue(_refValue),
-      valueset(false),
-      twice(false)
+      valueset(false)
     {
     }
   };

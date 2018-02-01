@@ -25,43 +25,45 @@ SOFTWARE.
 #include <catch.hpp>
 #include "cli_multiple_flag.h"
 
+using MultipleFlag = Cli::MultipleFlag;
+
 TEST_CASE("multiple-flag-constructor-with-name", "[MultipleFlag]")
 {
-  REQUIRE(Cli::MultipleFlag("name").isFlag());
-  REQUIRE(Cli::MultipleFlag("name").getName() == "name");
-  REQUIRE(Cli::MultipleFlag("name").getShortName() == '\0');
-  REQUIRE_FALSE(Cli::MultipleFlag("name").isSet());
+  REQUIRE(MultipleFlag::make("name")->isFlag());
+  REQUIRE(MultipleFlag::make("name")->getName() == "name");
+  REQUIRE(MultipleFlag::make("name")->getShortName() == '\0');
+  REQUIRE_FALSE(MultipleFlag::make("name")->isSet());
 }
 
 TEST_CASE("multiple-flag-constructor-with-short-name", "[MultipleFlag]")
 {
-  REQUIRE(Cli::MultipleFlag('n').isFlag());
-  REQUIRE(Cli::MultipleFlag('n').getName() == "");
-  REQUIRE(Cli::MultipleFlag('n').getShortName() == 'n');
-  REQUIRE_FALSE(Cli::MultipleFlag('n').isSet());
+  REQUIRE(MultipleFlag::make('n')->isFlag());
+  REQUIRE(MultipleFlag::make('n')->getName() == "");
+  REQUIRE(MultipleFlag::make('n')->getShortName() == 'n');
+  REQUIRE_FALSE(MultipleFlag::make('n')->isSet());
 }
 
 TEST_CASE("multiple-flag-constructor-with-name-and-short-name", "[MultipleFlag]")
 {
-  REQUIRE(Cli::MultipleFlag('n', "name").isFlag());
-  REQUIRE(Cli::MultipleFlag('n', "name").getName() == "name");
-  REQUIRE(Cli::MultipleFlag('n', "name").getShortName() == 'n');
-  REQUIRE_FALSE(Cli::MultipleFlag('n').isSet());
+  REQUIRE(MultipleFlag::make('n', "name")->isFlag());
+  REQUIRE(MultipleFlag::make('n', "name")->getName() == "name");
+  REQUIRE(MultipleFlag::make('n', "name")->getShortName() == 'n');
+  REQUIRE_FALSE(MultipleFlag::make('n')->isSet());
 }
 
 TEST_CASE("multiple-flag-parse", "[MultipleFlag]")
 {
-  Cli::MultipleFlag flag("name");
+  auto flag = MultipleFlag::make("name");
   int argc;
   const char * argv[] = { "progr" };
   std::vector<std::string> err;
   int i = 0;
-  REQUIRE(flag.parse(sizeof(argv)/sizeof(char*), argv, i, err));
+  REQUIRE(flag->parse(sizeof(argv)/sizeof(char*), argv, i, err));
   REQUIRE(err.empty());
-  REQUIRE(flag.isSet());
+  REQUIRE(flag->isSet());
 
-  REQUIRE(flag.parse(sizeof(argv)/sizeof(char*), argv, i, err));
+  REQUIRE(flag->parse(sizeof(argv)/sizeof(char*), argv, i, err));
   REQUIRE(err.empty());
-  REQUIRE(flag.isSet());
+  REQUIRE(flag->isSet());
 }
 

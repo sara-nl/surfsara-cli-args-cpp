@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. */
 #pragma once
+#include <memory>
 #include "cli_argument.h"
 
 namespace Cli
@@ -28,29 +29,31 @@ namespace Cli
   class Flag : public Argument
   {
   public:
-    Flag(const std::string & _name) :
-      shortname('\0'), name(_name), flagset(false), twice(false)
+    typedef std::shared_ptr<Flag> shared_type;
+
+    static shared_type make(const std::string & _name,
+                            const Doc & _doc=Doc(""))
     {
+      return shared_type(new Flag('\0', _name, _doc));
     }
 
-    Flag(char _shortname, const std::string & _name="") :
-      shortname(_shortname), name(_name), flagset(false), twice(false)
+
+    static shared_type make(char _shortname,
+                            const Doc & _doc=Doc(""))
     {
+      return shared_type(new Flag(_shortname, "", _doc));
     }
 
-    virtual bool isFlag() const
+    static shared_type make(char _shortname,
+                            const std::string & _name,
+                            const Doc & _doc=Doc(""))
+    {
+      return shared_type(new Flag(_shortname, _name, _doc));
+    }
+                            
+    virtual bool isFlag() const override
     {
       return true;
-    }
-
-    std::string getName() const override
-    {
-      return name;
-    }
-
-    char getShortName() const override
-    {
-      return shortname;
     }
 
     bool isSet() const override
@@ -64,7 +67,7 @@ namespace Cli
       if(flagset && !twice)
       {
         twice = true;
-        err.push_back(std::string("flag ") + getFlagAsString() +
+        err.push_back(std::string("flag ") + getFullName() +
                       std::string(" set twice."));
         return false;
       }
@@ -76,22 +79,14 @@ namespace Cli
     }
 
   private:
-    char shortname;
-    std::string name;
     bool flagset;
     bool twice;
 
-    std::string getFlagAsString() const
+    Flag(char _shortname,
+         const std::string & _name,
+         const Doc & _doc=Doc("")) :
+      Argument(_shortname, _name, _doc), flagset(false), twice(false)
     {
-      if(name.empty())
-      {
-        return std::string("-") + shortname;
-      }
-      else
-      {
-        return std::string("--") + name;
-      }
     }
-
   };
 }

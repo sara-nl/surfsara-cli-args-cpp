@@ -28,29 +28,31 @@ namespace Cli
   class MultipleFlag : public Argument
   {
   public:
-    MultipleFlag(const std::string & _name) :
-      shortname('\0'), name(_name), count(0)
+    typedef std::shared_ptr<MultipleFlag> shared_type;
+
+    static shared_type make(const std::string & _name,
+                            const Doc & _doc=Doc(""))
     {
+      return shared_type(new MultipleFlag('\0', _name, _doc));
     }
 
-    MultipleFlag(char _shortname, const std::string & _name="") :
-      shortname(_shortname), name(_name), count(0)
+
+    static shared_type make(char _shortname,
+                            const Doc & _doc=Doc(""))
     {
+      return shared_type(new MultipleFlag(_shortname, "", _doc));
     }
 
-    virtual bool isFlag() const
+    static shared_type make(char _shortname,
+                            const std::string & _name,
+                            const Doc & _doc=Doc(""))
+    {
+      return shared_type(new MultipleFlag(_shortname, _name, _doc));
+    }
+
+    virtual bool isFlag() const override
     {
       return true;
-    }
-
-    std::string getName() const override
-    {
-      return name;
-    }
-
-    char getShortName() const override
-    {
-      return shortname;
     }
 
     bool isSet() const override
@@ -71,9 +73,15 @@ namespace Cli
     }
 
   private:
-    char shortname;
-    std::string name;
     std::size_t count;
+    MultipleFlag(char _shortname,
+                 const std::string & _name,
+                 const Doc & _doc) :
+      Argument(_shortname, _name, _doc),
+      count(0)
+    {
+    }
+
   };
 }
 

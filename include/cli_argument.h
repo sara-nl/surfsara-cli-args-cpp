@@ -23,6 +23,9 @@ SOFTWARE. */
 #pragma once
 #include <string>
 #include <vector>
+#include <ostream>
+#include <memory>
+#include "cli_doc.h"
 
 namespace Cli
 {
@@ -30,8 +33,17 @@ namespace Cli
   {
   public:
     virtual ~Argument() {}
-    virtual std::string getName() const = 0;
-    virtual char getShortName() const = 0;
+
+    virtual std::string getName() const
+    {
+      return name;
+    }
+    
+    virtual char getShortName() const
+    {
+      return shortname;
+    }
+
     virtual bool isSet() const = 0;
     virtual bool parse(int argc, const char ** argv,
                        int & i, std::vector<std::string> & err) = 0;
@@ -60,5 +72,132 @@ namespace Cli
       return parse(argc, argv, i, err);
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    //
+    // Print help functions
+    //
+    ///////////////////////////////////////////////////////////////////////////
+    virtual std::size_t getArgumentsHelpWidth() const
+    {
+      std::size_t ret = 0;
+      std::string name = getName();
+      char shortname = getShortName();
+      if(shortname != '\0')
+      {
+        ret+= 4;
+      }
+      if(name != "")
+      {
+        if(ret > 0) ret+= 1;
+        ret+= name.size() + 4;
+      }
+      return ret;
+    }
+
+    virtual void printHelp(std::ostream & ost, std::size_t width=0) const
+    {
+      bool shortNameWritten = false;
+      std::size_t col = 0;
+      std::string name = getName();
+      char shortname = getShortName();
+      if(width == 0)
+      {
+        width = getArgumentsHelpWidth();
+      }
+      if(shortname != '\0')
+      {
+        ost << "-" << shortname;
+        col += 2;
+        shortNameWritten = true;
+      }
+      if(name != "")
+      {
+        if(shortNameWritten)
+        {
+          ost << ",";
+          col += 1;
+        }
+        ost << "--" << name;
+        col += 2 + name.size();
+      }
+      ost << "  ";
+      col+= 2;
+      auto docLines = splitLines(doc);
+      bool firstLine = true;
+      for(auto line : docLines)
+      {
+        if(firstLine)
+        {
+          firstLine = false;
+          while(col < width)
+          {
+            ost.put(' ');
+            col++;
+          }
+        }
+        else
+        {
+          for(std::size_t i = 0; i < col; i++)
+          {
+            ost.put(' ');
+          }
+        }
+        ost << line << std::endl;
+      }
+    }
+
+    static std::vector<std::string> splitLines(const std::string & str)
+    {
+      std::vector<std::string> ret;
+      std::string::size_type pos = 0;
+      std::string::size_type prev = 0;
+      while(prev < str.size())
+      {
+        std::string::size_type pos_r = str.find('\r', prev);
+        std::string::size_type pos_n = str.find('\n', prev);
+        if(pos_r != std::string::npos && pos_n != std::string::npos && pos_r+1 == pos_n)
+        {
+          ret.push_back(str.substr(prev, pos_r - prev));
+          prev = pos_n + 1;
+        }
+        else if(pos_n != std::string::npos)
+        {
+          ret.push_back(str.substr(prev, pos_n - prev));
+          prev = pos_n + 1;
+        }
+        else
+        {
+          break;
+        }
+      }
+      if(prev < str.size())
+      {
+        ret.push_back(str.substr(prev, str.size() - prev));
+      }
+      return ret;
+    }
+
+  protected:
+    Argument(char _shortname, const std::string & _name, const Doc & _doc)
+      : doc(_doc.doc), shortname(_shortname), name(_name)
+    {
+    }
+
+    std::string getFullName() const
+    {
+      if(getName().empty())
+      {
+        return std::string("-") + getShortName();
+      }
+      else
+      {
+        return std::string("--") + getName();
+      }
+    }
+
+  private:
+    char shortname;
+    std::string name;
+    std::string doc;
   };
 }

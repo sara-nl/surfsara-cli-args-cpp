@@ -26,10 +26,13 @@ SOFTWARE.
 #include "cli_parser.h"
 #include "cli_flag.h"
 
+using Parser = Cli::Parser;
+using Flag = Cli::Flag;
+
 TEST_CASE("add-argument-with-name", "[Parser]")
 {
-  Cli::Parser args;
-  auto flag = args.add(std::make_shared<Cli::Flag>("myflag"));
+  Parser args;
+  auto flag = args.add(Flag::make("myflag"));
   REQUIRE(args.hasArgument("myflag"));
   REQUIRE_FALSE(args.hasArgument("myflag2"));
   REQUIRE_FALSE(args.hasArgument('f'));
@@ -46,8 +49,8 @@ TEST_CASE("add-argument-with-name", "[Parser]")
 
 TEST_CASE("add-argument-with-shortName", "[Parser]")
 {
-  Cli::Parser args;
-  auto flag = args.add(std::make_shared<Cli::Flag>('f'));
+  Parser args;
+  auto flag = args.add(Flag::make('f'));
   REQUIRE_FALSE(args.hasArgument("myflag"));
   REQUIRE(args.hasArgument('f'));
   REQUIRE_FALSE(args.hasArgument('g'));
@@ -64,8 +67,8 @@ TEST_CASE("add-argument-with-shortName", "[Parser]")
 
 TEST_CASE("add-argument-with-name-and-shortName", "[Parser]")
 {
-  Cli::Parser args;
-  auto flag = args.add(std::make_shared<Cli::Flag>('f', "myflag"));
+  Parser args;
+  auto flag = args.add(Flag::make('f', "myflag"));
   REQUIRE(args.hasArgument("myflag"));
   REQUIRE(args.hasArgument('f'));
   REQUIRE_FALSE(args.hasArgument("myflag2"));
@@ -84,11 +87,11 @@ TEST_CASE("add-argument-with-name-and-shortName", "[Parser]")
 
 TEST_CASE("parse-flags", "[Parser]")
 {
-  Cli::Parser parser;
-  auto flag1 = parser.add(std::make_shared<Cli::Flag>('f', "flag1"));
-  auto flag2 = parser.add(std::make_shared<Cli::Flag>('g', "flag2"));
-  auto flagh = parser.add(std::make_shared<Cli::Flag>('h'));
-  auto flag3 = parser.add(std::make_shared<Cli::Flag>("flag3"));
+  Parser parser;
+  auto flag1 = parser.add(Flag::make('f', "flag1"));
+  auto flag2 = parser.add(Flag::make('g', "flag2"));
+  auto flagh = parser.add(Flag::make('h'));
+  auto flag3 = parser.add(Flag::make("flag3"));
   {
     const char * argv[] = { "progr" };
     std::vector<std::string> err;

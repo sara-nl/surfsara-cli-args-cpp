@@ -22,54 +22,93 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. 
 */
 
+#include <sstream>
 #include <catch.hpp>
 #include "cli_flag.h"
 
+using Flag = Cli::Flag;
+using Argument = Cli::Argument;
+
+static std::string getHelp(std::shared_ptr<Argument> arg)
+{
+  std::stringstream buff;
+  arg->printHelp(buff, 0);
+  return buff.str();
+}
+
 TEST_CASE("flag-constructor-with-name", "[Flag]")
 {
-  REQUIRE(Cli::Flag("name").isFlag());
-  REQUIRE(Cli::Flag("name").getName() == "name");
-  REQUIRE(Cli::Flag("name").getShortName() == '\0');
-  REQUIRE_FALSE(Cli::Flag("name").isSet());
+  REQUIRE(Flag::make("name")->isFlag());
+  REQUIRE(Flag::make("name")->getName() == "name");
+  REQUIRE(Flag::make("name")->getShortName() == '\0');
+  REQUIRE_FALSE(Flag::make("name")->isSet());
 }
 
 TEST_CASE("flag-constructor-with-short-name", "[Flag]")
 {
-  REQUIRE(Cli::Flag('n').isFlag());
-  REQUIRE(Cli::Flag('n').getName() == "");
-  REQUIRE(Cli::Flag('n').getShortName() == 'n');
-  REQUIRE_FALSE(Cli::Flag('n').isSet());
+  REQUIRE(Flag::make('n')->isFlag());
+  REQUIRE(Flag::make('n')->getName() == "");
+  REQUIRE(Flag::make('n')->getShortName() == 'n');
+  REQUIRE_FALSE(Flag::make('n')->isSet());
 }
 
 TEST_CASE("flag-constructor-with-name-and-short-name", "[Flag]")
 {
-  REQUIRE(Cli::Flag('n', "name").isFlag());
-  REQUIRE(Cli::Flag('n', "name").getName() == "name");
-  REQUIRE(Cli::Flag('n', "name").getShortName() == 'n');
-  REQUIRE_FALSE(Cli::Flag('n').isSet());
+  REQUIRE(Flag::make('n', "name")->isFlag());
+  REQUIRE(Flag::make('n', "name")->getName() == "name");
+  REQUIRE(Flag::make('n', "name")->getShortName() == 'n');
+  REQUIRE_FALSE(Flag::make('n', "name")->isSet());
+}
+
+TEST_CASE("flag-constructor-with-name-and-doc", "[Flag]")
+{
+  std::string docstring("documentation\nstring");
+  REQUIRE(Flag::make("name", Cli::Doc(docstring))->isFlag());
+  REQUIRE(Flag::make("name", Cli::Doc(docstring))->getName() == "name");
+  REQUIRE(Flag::make("name", Cli::Doc(docstring))->getShortName() == '\0');
+  REQUIRE_FALSE(Flag::make("name", Cli::Doc(docstring))->isSet());
+  REQUIRE(getHelp(Flag::make("name", Cli::Doc(docstring))) == 
+          "--name  documentation\n"
+          "        string\n");
+}
+
+TEST_CASE("flag-constructor-with-short-name-and-doc", "[Flag]")
+{
+  REQUIRE(Flag::make('n', Cli::Doc("documentation string"))->isFlag());
+  REQUIRE(Flag::make('n', Cli::Doc("documentation string"))->getName() == "");
+  REQUIRE(Flag::make('n', Cli::Doc("documentation string"))->getShortName() == 'n');
+  REQUIRE_FALSE(Flag::make('n', Cli::Doc("documentation string"))->isSet());
+}
+
+TEST_CASE("flag-constructor-with-name-short-name-and-doc", "[Flag]")
+{
+  REQUIRE(Flag::make('n', "name", Cli::Doc("documentation string"))->isFlag());
+  REQUIRE(Flag::make('n', "name", Cli::Doc("documentation string"))->getName() == "name");
+  REQUIRE(Flag::make('n', "name", Cli::Doc("documentation string"))->getShortName() == 'n');
+  REQUIRE_FALSE(Flag::make('n', "name", Cli::Doc("documentation string"))->isSet());
 }
 
 TEST_CASE("flag-parse", "[Flag]")
 {
-  Cli::Flag flag("name");
+  auto flag = Flag::make("name");
   int argc;
   const char * argv[] = { "progr" };
   std::vector<std::string> err;
   int i = 0;
-  REQUIRE(flag.parse(sizeof(argv)/sizeof(char*), argv, i, err));
+  REQUIRE(flag->parse(sizeof(argv)/sizeof(char*), argv, i, err));
   REQUIRE(err.empty());
-  REQUIRE(flag.isSet());
+  REQUIRE(flag->isSet());
 }
 
 TEST_CASE("flag-parse-twice", "[Flag]")
 {
-  Cli::Flag flag("name");
+  auto flag = Flag::make("name");
   int argc;
   const char * argv[] = { "progr" };
   std::vector<std::string> err;
   int i = 0;
-  REQUIRE(flag.parse(sizeof(argv)/sizeof(char*), argv, i, err));
-  REQUIRE_FALSE(flag.parse(sizeof(argv)/sizeof(char*), argv, i, err));
+  REQUIRE(flag->parse(sizeof(argv)/sizeof(char*), argv, i, err));
+  REQUIRE_FALSE(flag->parse(sizeof(argv)/sizeof(char*), argv, i, err));
   REQUIRE(err.size() == 1u);
-  REQUIRE(flag.isSet());
+  REQUIRE(flag->isSet());
 }

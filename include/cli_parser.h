@@ -27,12 +27,19 @@ SOFTWARE. */
 #include <vector>
 #include <memory>
 #include <map>
+#include <ostream>
 
 namespace Cli
 {
   class Parser
   {
   public:
+    Parser(const std::string & _program = "",
+           const std::string & _description = "")
+      : program(_program), description(_description)
+    {
+    }
+
     std::shared_ptr<Argument> add(std::shared_ptr<Argument> arg)
     {
       arguments.push_back(arg);
@@ -46,7 +53,7 @@ namespace Cli
       }
       return arg;
     }
-
+    
     bool hasArgument(const std::string & name) const
     {
       return name2argument.find(name) != name2argument.end();
@@ -141,11 +148,53 @@ namespace Cli
       return ret;
     }
 
+    void printHelp(std::ostream & ost)
+    {
+      if(!program.empty())
+      {
+        ost << program << std::endl;
+        for(std::size_t i = 0; i < program.size(); i++)
+        {
+          ost.put('-');
+        }
+        ost << std::endl;
+      }
+      if(!description.empty())
+      {
+        ost << description << std::endl;
+        ost << std::endl;
+      }
+      ost << "usage:" << program << " [OPTIONS]" << std::endl;
+      if(!arguments.empty())
+      {
+        ost << "options:" << std::endl;
+        std::size_t width = getArgumentsHelpWidth();
+        for(auto arg: arguments)
+        {
+          arg->printHelp(ost, width);
+        }
+      }
+    }
     
   private:
+    std::size_t getArgumentsHelpWidth() const
+    {
+      std::size_t width = 0;
+      for(auto arg: arguments)
+      {
+        std::size_t w = arg->getArgumentsHelpWidth();
+        if(w > width)
+        {
+          width = w;
+        }
+      }
+      return width;
+    }
     std::vector<std::shared_ptr<Argument> > arguments;
     std::map<std::string, std::shared_ptr<Argument> > name2argument;
     std::map<char, std::shared_ptr<Argument> > shortname2argument;
+    std::string program;
+    std::string description;
   };
 }
 

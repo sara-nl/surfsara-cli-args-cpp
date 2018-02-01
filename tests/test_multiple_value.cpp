@@ -22,41 +22,41 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. 
 */
 #include <catch.hpp>
-#include "cli_value.h"
+#include "cli_multiple_value.h"
 
-using IntValue = Cli::Value<int>;
+using IntMultipleValue = Cli::MultipleValue<int>;
 
-TEST_CASE("value-constructor-with-name", "[Value]")
+TEST_CASE("multiple-value-constructor-with-name", "[Value]")
 {
-  int v = 0;
-  REQUIRE_FALSE(IntValue::make(v, "name")->isFlag());
-  REQUIRE(IntValue::make(v, "name")->getName() == "name");
-  REQUIRE(IntValue::make(v, "name")->getShortName() == '\0');
-  REQUIRE_FALSE(IntValue::make(v, "name")->isSet());
+  std::vector<int> v;
+  REQUIRE_FALSE(IntMultipleValue::make(v, "name")->isFlag());
+  REQUIRE(IntMultipleValue::make(v, "name")->getName() == "name");
+  REQUIRE(IntMultipleValue::make(v, "name")->getShortName() == '\0');
+  REQUIRE_FALSE(IntMultipleValue::make(v, "name")->isSet());
 }
 
-TEST_CASE("value-constructor-with-short-name", "[Value]")
+TEST_CASE("multiple-value-constructor-with-short-name", "[Value]")
 {
-  int v = 0;
-  REQUIRE_FALSE(IntValue::make(v, 'n')->isFlag());
-  REQUIRE(IntValue::make(v, 'n')->getName() == "");
-  REQUIRE(IntValue::make(v, 'n')->getShortName() == 'n');
-  REQUIRE_FALSE(IntValue::make(v, 'n')->isSet());
+  std::vector<int> v;
+  REQUIRE_FALSE(IntMultipleValue::make(v, 'n')->isFlag());
+  REQUIRE(IntMultipleValue::make(v, 'n')->getName() == "");
+  REQUIRE(IntMultipleValue::make(v, 'n')->getShortName() == 'n');
+  REQUIRE_FALSE(IntMultipleValue::make(v, 'n')->isSet());
 }
 
-TEST_CASE("value-constructor-with-name-and-short-name", "[Value]")
+TEST_CASE("multiple-value-constructor-with-name-and-short-name", "[Value]")
 {
-  int v = 0;
-  REQUIRE_FALSE(IntValue::make(v, 'n', "name")->isFlag());
-  REQUIRE(IntValue::make(v, 'n', "name")->getName() == "name");
-  REQUIRE(IntValue::make(v, 'n', "name")->getShortName() == 'n');
-  REQUIRE_FALSE(IntValue::make(v, 'n')->isSet());
+  std::vector<int> v;
+  REQUIRE_FALSE(IntMultipleValue::make(v, 'n', "name")->isFlag());
+  REQUIRE(IntMultipleValue::make(v, 'n', "name")->getName() == "name");
+  REQUIRE(IntMultipleValue::make(v, 'n', "name")->getShortName() == 'n');
+  REQUIRE_FALSE(IntMultipleValue::make(v, 'n')->isSet());
 }
 
-TEST_CASE("value-parse", "[Value]")
+TEST_CASE("multiple-value-parse", "[Value]")
 {
-  int v = 0;
-  auto value = IntValue::make(v, "name");
+  std::vector<int> v;
+  auto value = IntMultipleValue::make(v, "name");
   int argc;
   const char * argv[] = { "progr", "--name", "12" };
   std::vector<std::string> err;
@@ -65,13 +65,13 @@ TEST_CASE("value-parse", "[Value]")
   REQUIRE(err.empty());
   REQUIRE(value->isSet());
   REQUIRE(i == 2);
-  REQUIRE(v == 12);
+  REQUIRE(v == std::vector<int>({12}));
 }
 
-TEST_CASE("value-parse-twice", "[Value]")
+TEST_CASE("multiple-value-parse-twice", "[Value]")
 {
-  int v = 0;
-  auto value = IntValue::make(v, "name");
+  std::vector<int> v;
+  auto value = IntMultipleValue::make(v, "name");
   int argc;
   const char * argv1[] = { "progr", "--name", "12" };
   const char * argv2[] = { "progr", "--name", "13" };
@@ -83,13 +83,13 @@ TEST_CASE("value-parse-twice", "[Value]")
   REQUIRE(i == 2);
   REQUIRE_FALSE(value->parse(sizeof(argv2)/sizeof(char*), argv2, i, err));
   REQUIRE(err.size() == 1u);
-  REQUIRE(v == 12);
+  REQUIRE(v == std::vector<int>({12}));
 }
 
-TEST_CASE("value-parse-argument-required", "[Value]")
+TEST_CASE("multiple-value-parse-argument-required", "[Value]")
 {
-  int v = 0;
-  auto value = IntValue::make(v, "name");
+  std::vector<int> v;
+  auto value = IntMultipleValue::make(v, "name");
   int argc;
   const char * argv[] = { "progr", "--name" };
   std::vector<std::string> err;
@@ -98,13 +98,13 @@ TEST_CASE("value-parse-argument-required", "[Value]")
   REQUIRE(err.size() == 1u);
   REQUIRE_FALSE(value->isSet());
   REQUIRE(i == 1);
-  REQUIRE(v == 0);
+  REQUIRE(v.empty());
 }
 
-TEST_CASE("value-parse-invalid-value", "[Value]")
+TEST_CASE("multiple-value-parse-invalid-value", "[Value]")
 {
-  int v = 0;
-  auto value = IntValue::make(v, "name");
+  std::vector<int> v;
+  auto value = IntMultipleValue::make(v, "name");
   int argc;
   const char * argv[] = { "progr", "--name", "12xx" };
   std::vector<std::string> err;
@@ -113,6 +113,6 @@ TEST_CASE("value-parse-invalid-value", "[Value]")
   REQUIRE(err.size() == 1u);
   REQUIRE(value->isSet());
   REQUIRE(i == 2);
-  REQUIRE(v == 0);
+  REQUIRE(v.empty());
 }
 
