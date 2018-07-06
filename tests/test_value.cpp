@@ -53,6 +53,15 @@ TEST_CASE("value-constructor-with-name-and-short-name", "[Value]")
   REQUIRE_FALSE(IntValue::make(v, 'n')->isSet());
 }
 
+TEST_CASE("value-constructor-unnamed", "[Value]")
+{
+  int v = 0;
+  REQUIRE_FALSE(IntValue::make(v)->isFlag());
+  REQUIRE(IntValue::make(v)->getName().empty());
+  REQUIRE(IntValue::make(v)->getShortName() == '\0');
+  REQUIRE_FALSE(IntValue::make(v)->isSet());
+}
+
 TEST_CASE("value-parse", "[Value]")
 {
   int v = 0;
@@ -114,5 +123,20 @@ TEST_CASE("value-parse-invalid-value", "[Value]")
   REQUIRE(value->isSet());
   REQUIRE(i == 2);
   REQUIRE(v == 0);
+}
+
+TEST_CASE("value-parse-unamed", "[Value]")
+{
+  int v = 0;
+  auto value = IntValue::make(v);
+  int argc;
+  const char * argv[] = { "progr", "12" };
+  std::vector<std::string> err;
+  int i = 1;
+  REQUIRE(value->parse(sizeof(argv)/sizeof(char*), argv, i, err));
+  REQUIRE(err.empty());
+  REQUIRE(value->isSet());
+  REQUIRE(i == 1);
+  REQUIRE(v == 12);
 }
 

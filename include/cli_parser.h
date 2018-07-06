@@ -34,6 +34,7 @@ namespace Cli
   class Parser
   {
   public:
+    
     Parser(const std::string & _program = "",
            const std::string & _description = "")
       : program(_program), description(_description)
@@ -42,14 +43,21 @@ namespace Cli
 
     std::shared_ptr<Argument> add(std::shared_ptr<Argument> arg)
     {
-      arguments.push_back(arg);
-      if(!arg->getName().empty())
+      if(arg->getName().empty() && !arg->getShortName())
       {
-        name2argument[arg->getName()] = arg;
+        unnamedArguments.push_back(arg);
       }
-      if(arg->getShortName())
+      else
       {
-        shortname2argument[arg->getShortName()] = arg;
+        arguments.push_back(arg);
+        if(!arg->getName().empty())
+        {
+          name2argument[arg->getName()] = arg;
+        }
+        if(arg->getShortName())
+        {
+          shortname2argument[arg->getShortName()] = arg;
+        }
       }
       return arg;
     }
@@ -100,6 +108,7 @@ namespace Cli
     {
       int i;
       bool ret = true;
+      std::size_t unnamedPos = 0;
       for(i = 1; i < argc; i++)
       {
         std::size_t len = strlen(argv[i]);
@@ -142,7 +151,18 @@ namespace Cli
         else
         {
           /* error */
-          ret = false;
+          if(unnamedPos >= unnamedArguments.size())
+          {
+            ret = false;
+          }
+          else
+          {
+            ret &= unnamedArguments[unnamedPos]->parse(argc, argv, i, err);
+            if(!unnamedArguments[unnamedPos]->isMultiple())
+            {
+              unnamedPos++;
+            }
+          }
         }
       }
       return ret;
@@ -164,7 +184,17 @@ namespace Cli
         ost << description << std::endl;
         ost << std::endl;
       }
-      ost << "usage:" << program << " [OPTIONS]" << std::endl;
+      ost << "usage:" << program << " [OPTIONS]";
+      {
+        std::size_t i = 0;
+        for(auto arg : unnamedArguments)
+        {
+          ost << " ARG" << ++i;
+          if(arg->isMultiple()) ost << "*";
+          else ost << " ";
+        }
+      }
+      ost << std::endl;
       if(!arguments.empty())
       {
         ost << "options:" << std::endl;
@@ -175,7 +205,7 @@ namespace Cli
         }
       }
     }
-    
+
   private:
     std::size_t getArgumentsHelpWidth() const
     {
@@ -191,6 +221,7 @@ namespace Cli
       return width;
     }
     std::vector<std::shared_ptr<Argument> > arguments;
+    std::vector<std::shared_ptr<Argument> > unnamedArguments;
     std::map<std::string, std::shared_ptr<Argument> > name2argument;
     std::map<char, std::shared_ptr<Argument> > shortname2argument;
     std::string program;

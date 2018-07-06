@@ -53,6 +53,15 @@ TEST_CASE("multiple-value-constructor-with-name-and-short-name", "[Value]")
   REQUIRE_FALSE(IntMultipleValue::make(v, 'n')->isSet());
 }
 
+TEST_CASE("multiple-value-constructor-unnamed", "[Value]")
+{
+  std::vector<int> v;
+  REQUIRE_FALSE(IntMultipleValue::make(v)->isFlag());
+  REQUIRE(IntMultipleValue::make(v)->getName() == "");
+  REQUIRE(IntMultipleValue::make(v)->getShortName() == '\0');
+  REQUIRE_FALSE(IntMultipleValue::make(v)->isSet());
+}
+
 TEST_CASE("multiple-value-parse", "[Value]")
 {
   std::vector<int> v;
@@ -114,5 +123,35 @@ TEST_CASE("multiple-value-parse-invalid-value", "[Value]")
   REQUIRE(value->isSet());
   REQUIRE(i == 2);
   REQUIRE(v.empty());
+}
+
+TEST_CASE("multiple-value-parse-unnamed", "[Value]")
+{
+  std::vector<int> v;
+  auto value = IntMultipleValue::make(v);
+  int argc;
+  const char * argv[] = { "progr", "1", "2", "3" };
+  std::vector<std::string> err;
+  int i = 1;
+  REQUIRE(value->parse(sizeof(argv)/sizeof(char*), argv, i, err));
+  REQUIRE(err.empty());
+  REQUIRE(value->isSet());
+  REQUIRE(i == 1);
+  REQUIRE(v == std::vector<int>({1}));
+
+  i++;
+  REQUIRE(value->parse(sizeof(argv)/sizeof(char*), argv, i, err));
+  REQUIRE(err.empty());
+  REQUIRE(value->isSet());
+  REQUIRE(i == 2);
+  REQUIRE(v == std::vector<int>({1,2}));
+
+  i++;
+  REQUIRE(value->parse(sizeof(argv)/sizeof(char*), argv, i, err));
+  REQUIRE(err.empty());
+  REQUIRE(value->isSet());
+  REQUIRE(i == 3);
+  REQUIRE(v == std::vector<int>({1,2,3}));
+
 }
 

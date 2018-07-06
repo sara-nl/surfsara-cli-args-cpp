@@ -45,6 +45,7 @@ namespace Cli
     }
 
     virtual bool isSet() const = 0;
+    virtual bool isMultiple() const = 0;
     virtual bool parse(int argc, const char ** argv,
                        int & i, std::vector<std::string> & err) = 0;
 

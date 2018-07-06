@@ -13,6 +13,8 @@ int main(int argc, const char ** argv)
 		     "- Cli::Multivalue arguments.");
   std::string str_value = "default";
   std::vector<int> values;
+  std::vector<std::string> args;
+
   parser.add(Cli::Flag::make('h', "help",
                              Cli::Doc("show help")));
   parser.add(Cli::MultipleFlag::make('v', "verbose",
@@ -25,6 +27,8 @@ int main(int argc, const char ** argv)
                                            'm', "multivalue",
                                            Cli::Doc("Integer values "
                                                     "that can be passed multiple times")));
+  parser.add(Cli::MultipleValue<std::string>::make(args,
+                                                   Cli::Doc("Unnamed arguments")));
 
   std::vector<std::string> err;
   if(!parser.parse(argc, argv, err))

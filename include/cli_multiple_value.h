@@ -61,6 +61,12 @@ namespace Cli
       return shared_type(new self_type(_refValue, _shortname, _name, _doc));
     }
 
+    static shared_type make(vector_type & _refValue,
+                            const Doc & _doc=Doc("")) 
+    {
+      return shared_type(new self_type(_refValue, '\0', "", _doc));
+    }
+
     virtual bool isFlag() const override
     {
       return false;
@@ -71,15 +77,24 @@ namespace Cli
       return valueset;
     }
 
+    virtual bool isMultiple() const override
+    {
+      return true;
+    }
+
+
     bool parse(int argc, const char ** argv,
                int & i, std::vector<std::string> & err) override
     {
-      if( i + 1 >= argc)
+      if( getShortName() != '\0' || !getName().empty())
       {
-        err.push_back(getFullName() + " requires an argument");
-        return false;
+        if( i + 1 >= argc)
+        {
+          err.push_back(getFullName() + " requires an argument");
+          return false;
+        }
+        i++;
       }
-      i++;
       valueset = true;
       std::stringstream stream(argv[i]);
       T value;

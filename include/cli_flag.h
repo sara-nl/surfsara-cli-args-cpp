@@ -61,6 +61,11 @@ namespace Cli
       return flagset;
     }
 
+    virtual bool isMultiple() const override
+    {
+      return false;
+    }
+
     bool parse(int argc, const char ** argv,
                int & i, std::vector<std::string> & err) override
     {

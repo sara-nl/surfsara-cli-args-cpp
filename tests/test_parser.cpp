@@ -25,6 +25,8 @@ SOFTWARE.
 #include <catch.hpp>
 #include <cli_parser.h>
 #include <cli_flag.h>
+#include <cli_value.h>
+#include <cli_multiple_value.h>
 
 using Parser = Cli::Parser;
 using Flag = Cli::Flag;
@@ -118,6 +120,39 @@ TEST_CASE("parse-flags", "[Parser]")
     std::vector<std::string> err;
     REQUIRE_FALSE(parser.parse(sizeof(argv)/sizeof(char*), argv, err));
     REQUIRE(err.size() == 1u);
+  }
+}
+
+TEST_CASE("parse-flags-named-and-unnamed", "[Parser]")
+{
+  Parser parser;
+  int i1 = 0;
+  std::vector<int> n;
+  int i2 = 0;
+  std::string str;
+  auto flag1   = parser.add(Flag::make('f', "flag1"));
+  auto flagh   = parser.add(Flag::make('h'));
+  auto arg_i1  = parser.add(Cli::Value<int>::make(i1, 'i'));
+  auto arg_str = parser.add(Cli::Value<std::string>::make(str));
+  auto arg_n   = parser.add(Cli::MultipleValue<int>::make(n, 'n'));
+  auto arg_i2  = parser.add(Cli::Value<int>::make(i2));
+  {
+    const char * argv[] = { "progr" };
+    std::vector<std::string> err;
+    REQUIRE(parser.parse(sizeof(argv)/sizeof(char*), argv, err));
+    REQUIRE(err.empty());
+    REQUIRE_FALSE(parser.isSet('f'));
+    REQUIRE_FALSE(parser.isSet('h'));
+    REQUIRE_FALSE(parser.isSet('n'));
+    REQUIRE_FALSE(arg_str->isSet());
+    REQUIRE_FALSE(arg_i2->isSet());
+  }
+  {
+    const char * argv[] = { "progr", "--flag1"};
+    std::vector<std::string> err;
+    REQUIRE(parser.parse(sizeof(argv)/sizeof(char*), argv, err));
+    REQUIRE(err.empty());
+    REQUIRE(parser.isSet("flag1"));
   }
 }
 

@@ -60,6 +60,11 @@ namespace Cli
       return count > 0;
     }
 
+    virtual bool isMultiple() const override
+    {
+      return true;
+    }
+
     std::size_t numSet() const
     {
       return count;
