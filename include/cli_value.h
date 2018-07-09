@@ -21,13 +21,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. */
 #pragma once
+#include "cli_converter.h"
+#include "cli_argument.h"
 #include <string>
 #include <sstream>
 #include <typeinfo>
 #include <memory>
-#include "cli_argument.h"
 
-#include <iostream>
+
 
 namespace Cli
 {
@@ -101,24 +102,14 @@ namespace Cli
         return false;
       }
       valueset = true;
-      std::stringstream stream(argv[i]);
-      T value;
-      stream >> value;
-      if(stream.fail() || !stream.eof()) 
-      {
-        err.push_back(std::string(argv[i]) +
-                      " is not a valid " +
-                      typeid(T).name());
-        return false;
-      }
-      refValue = value;
-      return true;
+      return converter(argv[i], refValue, err);
     }
 
   private:
     T & refValue;
     bool valueset;
     bool twice;
+    details::Converter<T> converter;
 
     Value(T & _refValue,
           char _shortname,
