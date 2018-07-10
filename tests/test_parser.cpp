@@ -26,7 +26,10 @@ SOFTWARE.
 #include <cli_parser.h>
 #include <cli_flag.h>
 #include <cli_value.h>
+#include <cli_positional_value.h>
 #include <cli_multiple_value.h>
+#include <cli_positional_multiple_value.h>
+
 
 using Parser = Cli::Parser;
 using Flag = Cli::Flag;
@@ -34,15 +37,15 @@ using Flag = Cli::Flag;
 TEST_CASE("add-argument-with-name", "[Parser]")
 {
   Parser args;
-  auto flag = args.add(Flag::make("myflag"));
+  auto flag = args.addFlag("myflag");
   REQUIRE(args.hasArgument("myflag"));
   REQUIRE_FALSE(args.hasArgument("myflag2"));
   REQUIRE_FALSE(args.hasArgument('f'));
   REQUIRE_FALSE(args.isSet("myflag"));
   REQUIRE_FALSE(args.isSet("myflag2"));
   REQUIRE_FALSE(args.isSet('f'));
-
-  flag->parse(0, {});
+  std::shared_ptr<Cli::Argument> arg(flag);
+  arg->parse(0, nullptr);
   REQUIRE(args.isSet("myflag"));
   REQUIRE_FALSE(args.isSet('f'));
   REQUIRE_FALSE(args.isSet("myflag2"));
@@ -52,7 +55,7 @@ TEST_CASE("add-argument-with-name", "[Parser]")
 TEST_CASE("add-argument-with-shortName", "[Parser]")
 {
   Parser args;
-  auto flag = args.add(Flag::make('f'));
+  auto flag = args.addFlag('f');
   REQUIRE_FALSE(args.hasArgument("myflag"));
   REQUIRE(args.hasArgument('f'));
   REQUIRE_FALSE(args.hasArgument('g'));
@@ -70,7 +73,7 @@ TEST_CASE("add-argument-with-shortName", "[Parser]")
 TEST_CASE("add-argument-with-name-and-shortName", "[Parser]")
 {
   Parser args;
-  auto flag = args.add(Flag::make('f', "myflag"));
+  auto flag = args.addFlag('f', "myflag");
   REQUIRE(args.hasArgument("myflag"));
   REQUIRE(args.hasArgument('f'));
   REQUIRE_FALSE(args.hasArgument("myflag2"));
@@ -90,10 +93,10 @@ TEST_CASE("add-argument-with-name-and-shortName", "[Parser]")
 TEST_CASE("parse-flags", "[Parser]")
 {
   Parser parser;
-  auto flag1 = parser.add(Flag::make('f', "flag1"));
-  auto flag2 = parser.add(Flag::make('g', "flag2"));
-  auto flagh = parser.add(Flag::make('h'));
-  auto flag3 = parser.add(Flag::make("flag3"));
+  auto flag1 = parser.addFlag('f', "flag1");
+  auto flag2 = parser.addFlag('g', "flag2");
+  auto flagh = parser.addFlag('h');
+  auto flag3 = parser.addFlag("flag3");
   {
     const char * argv[] = { "progr" };
     std::vector<std::string> err;
@@ -130,12 +133,12 @@ TEST_CASE("parse-flags-named-and-unnamed", "[Parser]")
   std::vector<int> n;
   int i2 = 0;
   std::string str;
-  auto flag1   = parser.add(Flag::make('f', "flag1"));
-  auto flagh   = parser.add(Flag::make('h'));
-  auto arg_i1  = parser.add(Cli::Value<int>::make(i1, 'i'));
-  auto arg_str = parser.add(Cli::Value<std::string>::make(str));
-  auto arg_n   = parser.add(Cli::MultipleValue<int>::make(n, 'n'));
-  auto arg_i2  = parser.add(Cli::Value<int>::make(i2));
+  auto flag1   = parser.addFlag('f', "flag1");
+  auto flagh   = parser.addFlag('h');
+  auto arg_i1  = parser.addValue<int>(i1, 'i');
+  auto arg_str = parser.addPositionalValue<std::string>(str);
+  auto arg_n   = parser.addMultipleValue<int>(n, 'n');
+  auto arg_i2  = parser.addPositionalValue<int>(i2);
   {
     const char * argv[] = { "progr" };
     std::vector<std::string> err;

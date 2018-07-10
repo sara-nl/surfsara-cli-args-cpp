@@ -21,44 +21,56 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. */
 #pragma once
-#include <memory>
+#include "cli_converter.h"
 #include "cli_argument.h"
+#include <string>
+#include <sstream>
+#include <typeinfo>
+#include <memory>
+
+
 
 namespace Cli
 {
-  class Flag : public Argument
+  template<typename T>
+  class PositionalValue : public Argument
   {
   public:
-    typedef std::shared_ptr<Flag> shared_type;
+    typedef PositionalValue<T> self_type;
+    typedef std::shared_ptr<self_type> shared_type;
 
-    static shared_type make(const std::string & _name,
+    static shared_type make(const std::string & _name = "ARG",
                             const Doc & _doc=Doc(""))
     {
-      return shared_type(new Flag('\0', _name, _doc));
+      T * value = new T();
+      return shared_type(new self_type(value, *value, _name, _doc));
     }
 
-
-    static shared_type make(char _shortname,
+    static shared_type make(T & _refValue,
+                            const std::string & _name = "ARG",
                             const Doc & _doc=Doc(""))
     {
-      return shared_type(new Flag(_shortname, "", _doc));
+      return shared_type(new self_type(nullptr, _refValue, _name, _doc));
     }
-
-    static shared_type make(char _shortname,
-                            const std::string & _name,
-                            const Doc & _doc=Doc(""))
-    {
-      return shared_type(new Flag(_shortname, _name, _doc));
-    }
-                            
+    
     virtual bool isFlag() const override
     {
-      return true;
+      return false;
     }
 
     bool isSet() const override
     {
-      return flagset;
+      return valueset;
+    }
+
+    T & getValue()
+    {
+      return refValue;
+    }
+
+    const T & getValue() const
+    {
+      return refValue;
     }
 
     virtual bool isMultiple() const override
@@ -68,37 +80,49 @@ namespace Cli
 
     virtual bool isPositional() const override
     {
-      return false;
+      return true;
     }
 
-    virtual bool parseArgument(int argc,
-                               const char ** argv,
-                               int & i,
-                               std::vector<std::string> & err) override
+    virtual bool parseArgument(int argc, const char ** argv,
+                               int & i, std::vector<std::string> & err) override
     {
-      if(flagset && !twice)
+      if(valueset && !twice)
       {
         twice = true;
-        err.push_back(std::string("flag ") + getFullName() +
+        err.push_back(std::string("value ") + getFullName() +
                       std::string(" set twice."));
         return false;
       }
-      else
-      {
-        flagset = true;
-        return true;
-      }
+      valueset = true;
+      return converter(argv[i], refValue, err);
     }
 
+    ~PositionalValue()
+    {
+      if(value)
+      {
+        delete value;
+      }
+    }
+    
   private:
-    bool flagset;
+    T * value;
+    T & refValue;
+    bool valueset;
     bool twice;
+    details::Converter<T> converter;
 
-    Flag(char _shortname,
-         const std::string & _name,
-         const Doc & _doc=Doc("")) :
-      Argument(_shortname, _name, _doc), flagset(false), twice(false)
+    PositionalValue(T * _value,
+                    T & _refValue,
+                    const std::string & _name,
+                    const Doc & _doc=Doc("")) :
+      Argument('\0', _name, _doc),
+      value(_value),
+      refValue(_refValue),
+      valueset(false),
+      twice(false)
     {
     }
   };
 }
+

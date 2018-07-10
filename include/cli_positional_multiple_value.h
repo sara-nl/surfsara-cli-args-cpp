@@ -32,55 +32,25 @@ SOFTWARE. */
 namespace Cli
 {
   template<typename T>
-  class MultipleValue : public Argument
+  class PositionalMultipleValue : public Argument
   {
   public:
-    typedef MultipleValue<T> self_type;
+    typedef PositionalMultipleValue<T> self_type;
     typedef std::vector<T> vector_type;
     typedef std::shared_ptr<self_type> shared_type;
 
-    static shared_type make(const std::string & _name,
+    static shared_type make(const std::string & _name = "ARGS",
                             const Doc & _doc=Doc(""))
     {
-      vector_type * value = new vector_type();
-      return shared_type(new self_type(value, *value, '\0', _name, _doc));
-    }
-
-    static shared_type make(char _shortname,
-                            const Doc & _doc=Doc(""))
-    {
-      vector_type * value = new vector_type();
-      return shared_type(new self_type(value, *value, _shortname, "", _doc));
-    }
-
-    static shared_type make(char _shortname,
-                            const std::string & _name,
-                            const Doc & _doc=Doc("")) 
-    {
-      vector_type * value = new vector_type();
-      return shared_type(new self_type(value, *value, _shortname, _name, _doc));
+      vector_type * value = new vector_type;
+      return shared_type(new self_type(value, *value, _name, _doc));
     }
 
     static shared_type make(vector_type & _refValue,
-                            const std::string & _name,
+                            const std::string & _name = "ARGS",
                             const Doc & _doc=Doc(""))
     {
-      return shared_type(new self_type(nullptr, _refValue, '\0', _name, _doc));
-    }
-
-    static shared_type make(vector_type & _refValue,
-                            char _shortname,
-                            const Doc & _doc=Doc(""))
-    {
-      return shared_type(new self_type(nullptr, _refValue, _shortname, "", _doc));
-    }
-
-    static shared_type make(vector_type & _refValue,
-                            char _shortname,
-                            const std::string & _name,
-                            const Doc & _doc=Doc("")) 
-    {
-      return shared_type(new self_type(nullptr, _refValue, _shortname, _name, _doc));
+      return shared_type(new self_type(nullptr, _refValue, _name, _doc));
     }
 
     virtual bool isFlag() const override
@@ -88,7 +58,7 @@ namespace Cli
       return false;
     }
 
-    bool isSet() const override
+    virtual bool isSet() const override
     {
       return valueset;
     }
@@ -110,21 +80,12 @@ namespace Cli
 
     virtual bool isPositional() const override
     {
-      return false;
+      return true;
     }
 
     virtual bool parseArgument(int argc, const char ** argv,
                                int & i, std::vector<std::string> & err) override
     {
-      if( getShortName() != '\0' || !getName().empty())
-      {
-        if( i + 1 >= argc)
-        {
-          err.push_back(getFullName() + " requires an argument");
-          return false;
-        }
-        i++;
-      }
       valueset = true;
       T tmp;
       if(converter(argv[i], tmp, err))
@@ -138,7 +99,7 @@ namespace Cli
       }
     }
 
-    ~MultipleValue()
+    ~PositionalMultipleValue()
     {
       if(value)
       {
@@ -151,12 +112,13 @@ namespace Cli
     vector_type & refValue;
     bool valueset;
     details::Converter<T> converter;
-    MultipleValue(vector_type * _value,
-                  vector_type & _refValue,
-                  char _shortname,
-                  const std::string & _name,
-                  const Doc & _doc=Doc("")) :
-      Argument(_shortname, _name, _doc),
+    PositionalMultipleValue(vector_type * _value,
+                            vector_type & _refValue,
+                            const std::string & _name,
+                            const Doc & _doc=Doc("")) :
+      Argument('\0',
+               _name,
+               _doc),
       value(_value),
       refValue(_refValue),
       valueset(false)

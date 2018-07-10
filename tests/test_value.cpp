@@ -23,13 +23,16 @@ SOFTWARE.
 */
 #include <catch.hpp>
 #include <cli_value.h>
+#include <cli_positional_value.h>
 
 using IntValue = Cli::Value<int>;
+using PositionalIntValue = Cli::PositionalValue<int>;
 
 TEST_CASE("value-constructor-with-name", "[Value]")
 {
   int v = 0;
   REQUIRE_FALSE(IntValue::make(v, "name")->isFlag());
+  REQUIRE_FALSE(IntValue::make(v, "name")->isPositional());
   REQUIRE(IntValue::make(v, "name")->getName() == "name");
   REQUIRE(IntValue::make(v, "name")->getShortName() == '\0');
   REQUIRE_FALSE(IntValue::make(v, "name")->isSet());
@@ -39,6 +42,7 @@ TEST_CASE("value-constructor-with-short-name", "[Value]")
 {
   int v = 0;
   REQUIRE_FALSE(IntValue::make(v, 'n')->isFlag());
+  REQUIRE_FALSE(IntValue::make(v, 'n')->isPositional());
   REQUIRE(IntValue::make(v, 'n')->getName() == "");
   REQUIRE(IntValue::make(v, 'n')->getShortName() == 'n');
   REQUIRE_FALSE(IntValue::make(v, 'n')->isSet());
@@ -48,18 +52,20 @@ TEST_CASE("value-constructor-with-name-and-short-name", "[Value]")
 {
   int v = 0;
   REQUIRE_FALSE(IntValue::make(v, 'n', "name")->isFlag());
+  REQUIRE_FALSE(IntValue::make(v, 'n', "name")->isPositional());
   REQUIRE(IntValue::make(v, 'n', "name")->getName() == "name");
   REQUIRE(IntValue::make(v, 'n', "name")->getShortName() == 'n');
   REQUIRE_FALSE(IntValue::make(v, 'n')->isSet());
 }
 
-TEST_CASE("value-constructor-unnamed", "[Value]")
+TEST_CASE("value-constructor-positional", "[Value]")
 {
   int v = 0;
-  REQUIRE_FALSE(IntValue::make(v)->isFlag());
-  REQUIRE(IntValue::make(v)->getName().empty());
-  REQUIRE(IntValue::make(v)->getShortName() == '\0');
-  REQUIRE_FALSE(IntValue::make(v)->isSet());
+  REQUIRE_FALSE(PositionalIntValue::make(v)->isFlag());
+  REQUIRE(PositionalIntValue::make(v)->isPositional());
+  REQUIRE(PositionalIntValue::make(v, "test")->getName() == "test");
+  REQUIRE(PositionalIntValue::make(v)->getShortName() == '\0');
+  REQUIRE_FALSE(PositionalIntValue::make(v)->isSet());
 }
 
 TEST_CASE("value-parse", "[Value]")
@@ -125,10 +131,10 @@ TEST_CASE("value-parse-invalid-value", "[Value]")
   REQUIRE(v == 0);
 }
 
-TEST_CASE("value-parse-unamed", "[Value]")
+TEST_CASE("value-parse-positional", "[Value]")
 {
   int v = 0;
-  auto value = IntValue::make(v);
+  auto value = PositionalIntValue::make(v, "name");
   int argc;
   const char * argv[] = { "progr", "12" };
   std::vector<std::string> err;

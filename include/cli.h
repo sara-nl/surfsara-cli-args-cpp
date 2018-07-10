@@ -25,4 +25,6 @@ SOFTWARE. */
 #include "cli_flag.h"
 #include "cli_multiple_flag.h"
 #include "cli_value.h"
+#include "cli_positional_value.h"
 #include "cli_multiple_value.h"
+#include "cli_positional_multiple_value.h"

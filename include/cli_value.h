@@ -39,18 +39,40 @@ namespace Cli
     typedef Value<T> self_type;
     typedef std::shared_ptr<self_type> shared_type;
 
+    static shared_type make(const std::string & _name,
+                            const Doc & _doc=Doc(""))
+    {
+      T * value = new T();
+      return shared_type(new self_type(value, *value, '\0', _name, _doc));
+    }
+    
+    static shared_type make(char _shortname,
+                            const Doc & _doc=Doc(""))
+    {
+      T * value = new T();
+      return shared_type(new self_type(value, *value, _shortname, "", _doc));
+    }
+
+    static shared_type make(char _shortname,
+                            const std::string & _name,
+                            const Doc & _doc=Doc("")) 
+    {
+      T * value = new T();
+      return shared_type(new self_type(value, *value, _shortname, _name, _doc));
+    }
+
     static shared_type make(T & _refValue,
                             const std::string & _name,
                             const Doc & _doc=Doc(""))
     {
-      return shared_type(new self_type(_refValue, '\0', _name, _doc));
+      return shared_type(new self_type(nullptr, _refValue, '\0', _name, _doc));
     }
     
     static shared_type make(T & _refValue,
                             char _shortname,
                             const Doc & _doc=Doc(""))
     {
-      return shared_type(new self_type(_refValue, _shortname, "", _doc));
+      return shared_type(new self_type(nullptr, _refValue, _shortname, "", _doc));
     }
 
     static shared_type make(T & _refValue,
@@ -58,13 +80,7 @@ namespace Cli
                             const std::string & _name,
                             const Doc & _doc=Doc("")) 
     {
-      return shared_type(new self_type(_refValue, _shortname, _name, _doc));
-    }
-
-    static shared_type make(T & _refValue,
-                            const Doc & _doc=Doc(""))
-    {
-      return shared_type(new self_type(_refValue, '\0',"", _doc));
+      return shared_type(new self_type(nullptr, _refValue, _shortname, _name, _doc));
     }
 
     virtual bool isFlag() const override
@@ -77,13 +93,28 @@ namespace Cli
       return valueset;
     }
 
+    T & getValue()
+    {
+      return refValue;
+    }
+
+    const T & getValue() const
+    {
+      return refValue;
+    }
+
     virtual bool isMultiple() const override
     {
       return false;
     }
 
-    bool parse(int argc, const char ** argv,
-               int & i, std::vector<std::string> & err) override
+    virtual bool isPositional() const override
+    {
+      return false;
+    }
+
+    virtual bool parseArgument(int argc, const char ** argv,
+                               int & i, std::vector<std::string> & err) override
     {
       if( getShortName() != '\0' || !getName().empty())
       {
@@ -105,18 +136,28 @@ namespace Cli
       return converter(argv[i], refValue, err);
     }
 
+    ~Value()
+    {
+      if(value)
+      {
+        delete value;
+      }
+    }
   private:
+    T * value;
     T & refValue;
     bool valueset;
     bool twice;
     details::Converter<T> converter;
 
-    Value(T & _refValue,
+    Value(T * _value,
+          T & _refValue,
           char _shortname,
           const std::string & _name,
           const Doc & _doc=Doc("")) :
       Argument(_shortname, _name, _doc),
       refValue(_refValue),
+      value(_value),
       valueset(false),
       twice(false)
     {

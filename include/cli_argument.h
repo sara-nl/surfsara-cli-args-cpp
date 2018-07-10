@@ -46,31 +46,36 @@ namespace Cli
 
     virtual bool isSet() const = 0;
     virtual bool isMultiple() const = 0;
-    virtual bool parse(int argc, const char ** argv,
-                       int & i, std::vector<std::string> & err) = 0;
+    virtual bool isPositional() const = 0;
 
     virtual bool isFlag() const
     {
       return false;
     }
 
+    bool parse(int argc, const char ** argv,
+                       int & i, std::vector<std::string> & err)
+    {
+      parseArgument(argc, argv, i, err);
+    }
+
     bool parse(int argc, const char ** argv, int & i)
     {
       std::vector<std::string> err;
-      return parse(argc, argv, i, err);
+      return parseArgument(argc, argv, i, err);
     }
 
     bool parse(int argc, const char ** argv, std::vector<std::string> & err)
     {
       int i;
-      return parse(argc, argv, i, err);
+      return parseArgument(argc, argv, i, err);
     }
 
     bool parse(int argc, const char ** argv)
     {
       std::vector<std::string> err;
-      int i;
-      return parse(argc, argv, i, err);
+      int i = 0;
+      return parseArgument(argc, argv, i, err);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -183,6 +188,9 @@ namespace Cli
       : doc(_doc.doc), shortname(_shortname), name(_name)
     {
     }
+
+    virtual bool parseArgument(int argc, const char ** argv,
+                               int & i, std::vector<std::string> & err) = 0;
 
     std::string getFullName() const
     {

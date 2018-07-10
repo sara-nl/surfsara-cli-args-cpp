@@ -65,13 +65,18 @@ namespace Cli
       return true;
     }
 
+    virtual bool isPositional() const override
+    {
+      return false;
+    }
+
     std::size_t numSet() const
     {
       return count;
     }
 
-    bool parse(int argc, const char ** argv,
-               int & i, std::vector<std::string> & err) override
+    virtual bool parseArgument(int argc, const char ** argv,
+                               int & i, std::vector<std::string> & err) override
     {
       count++;
       return true;

@@ -19,5 +19,6 @@ add_executable(runtest
       tests/test_multiple_value.cpp
       tests/test_parser.cpp
       )
-add_executable(example example.cpp)
+add_executable(example_01 example_01.cpp)
+add_executable(example_02 example_02.cpp)
 target_link_libraries(runtest Catch)

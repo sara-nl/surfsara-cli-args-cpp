@@ -21,7 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. */
 #pragma once
-#include "cli_argument.h"
+#include "cli_flag.h"
+#include "cli_multiple_flag.h"
+#include "cli_value.h"
+#include "cli_positional_value.h"
+#include "cli_multiple_value.h"
+#include "cli_positional_multiple_value.h"
+
 #include <string>
 #include <string.h>
 #include <vector>
@@ -41,11 +47,96 @@ namespace Cli
     {
     }
 
+    template<typename... Args>
+    std::shared_ptr<Flag> addFlag(Args... args)
+    {
+      auto arg = Flag::make(args...);
+      add(arg);
+      return arg;
+    }
+
+    template<typename... Args>
+    std::shared_ptr<MultipleFlag> addMultipleFlag(Args... args)
+    {
+      auto arg = MultipleFlag::make(args...);
+      add(arg);
+      return arg;
+    }
+
+    template<typename T, typename... Args>
+    std::shared_ptr<Value<T>> addValue(Args... args)
+    {
+      auto arg = Value<T>::make(args...);
+      add(arg);
+      return arg;
+    }
+
+    template<typename T, typename... Args>
+    std::shared_ptr<Value<T>> addValue(T & value, Args... args)
+    {
+      auto arg = Value<T>::make(value, args...);
+      add(arg);
+      return arg;
+    }
+
+    template<typename T, typename... Args>
+    std::shared_ptr<MultipleValue<T>> addMultipleValue(Args... args)
+    {
+      auto arg = MultipleValue<T>::make(args...);
+      add(arg);
+      return arg;
+    }
+
+    template<typename T, typename... Args>
+    std::shared_ptr<MultipleValue<T>> addMultipleValue(std::vector<T> & values, Args... args)
+    {
+      auto arg = MultipleValue<T>::make(values, args...);
+      add(arg);
+      return arg;
+    }
+
+
+    template<typename T, typename... Args>
+    std::shared_ptr<PositionalValue<T>> addPositionalValue(Args... args)
+    {
+      auto arg = PositionalValue<T>::make(args...);
+      add(arg);
+      return arg;
+    }
+
+    template<typename T, typename... Args>
+    std::shared_ptr<PositionalValue<T>> addPositionalValue(T & value, Args... args)
+    {
+      auto arg = PositionalValue<T>::make(value, args...);
+      add(arg);
+      return arg;
+    }
+
+    template<typename T, typename... Args>
+    std::shared_ptr<PositionalMultipleValue<T>> addPositionalMultipleValue(Args... args)
+    {
+      auto arg = PositionalMultipleValue<T>::make(args...);
+      add(arg);
+      return arg;
+    }
+
+    template<typename T, typename... Args>
+    std::shared_ptr<PositionalMultipleValue<T>> addPositionalMultipleValue(std::vector<T> & values,
+                                                                           Args... args)
+    {
+      auto arg = PositionalMultipleValue<T>::make(values, args...);
+      add(arg);
+      return arg;
+    }
+
+    ////////////////////////////////////////////////////////////////////
+    // old interface
+    ////////////////////////////////////////////////////////////////////
     std::shared_ptr<Argument> add(std::shared_ptr<Argument> arg)
     {
-      if(arg->getName().empty() && !arg->getShortName())
+      if(arg->isPositional())
       {
-        unnamedArguments.push_back(arg);
+        positionalArguments.push_back(arg);
       }
       else
       {
@@ -148,21 +239,25 @@ namespace Cli
             }
           }
         }
-        else
+        else if(argv[i][0] != '-')
         {
-          /* error */
-          if(unnamedPos >= unnamedArguments.size())
+          if(unnamedPos >= positionalArguments.size())
           {
             ret = false;
           }
           else
           {
-            ret &= unnamedArguments[unnamedPos]->parse(argc, argv, i, err);
-            if(!unnamedArguments[unnamedPos]->isMultiple())
+            ret &= positionalArguments[unnamedPos]->parse(argc, argv, i, err);
+            if(!positionalArguments[unnamedPos]->isMultiple())
             {
               unnamedPos++;
             }
           }
+        }
+        else
+        {
+          ret = false;
+          err.push_back(std::string("invalid argument ") + argv[i]);
         }
       }
       return ret;
@@ -187,9 +282,16 @@ namespace Cli
       ost << "usage:" << program << " [OPTIONS]";
       {
         std::size_t i = 0;
-        for(auto arg : unnamedArguments)
+        for(auto arg : positionalArguments)
         {
-          ost << " ARG" << ++i;
+          if(arg->getName() == "")
+          {
+            ost << "ARG" << ++i;
+          }
+          else
+          {
+            ost << arg->getName();
+          }
           if(arg->isMultiple()) ost << "*";
           else ost << " ";
         }
@@ -221,7 +323,7 @@ namespace Cli
       return width;
     }
     std::vector<std::shared_ptr<Argument> > arguments;
-    std::vector<std::shared_ptr<Argument> > unnamedArguments;
+    std::vector<std::shared_ptr<Argument> > positionalArguments;
     std::map<std::string, std::shared_ptr<Argument> > name2argument;
     std::map<char, std::shared_ptr<Argument> > shortname2argument;
     std::string program;

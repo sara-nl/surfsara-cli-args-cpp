@@ -23,9 +23,10 @@ SOFTWARE.
 */
 #include <catch.hpp>
 #include "cli_multiple_value.h"
+#include "cli_positional_multiple_value.h"
 
 using IntMultipleValue = Cli::MultipleValue<int>;
-
+using PositionalMulitipleIntValue = Cli::PositionalMultipleValue<int>;
 TEST_CASE("multiple-value-constructor-with-name", "[Value]")
 {
   std::vector<int> v;
@@ -53,13 +54,13 @@ TEST_CASE("multiple-value-constructor-with-name-and-short-name", "[Value]")
   REQUIRE_FALSE(IntMultipleValue::make(v, 'n')->isSet());
 }
 
-TEST_CASE("multiple-value-constructor-unnamed", "[Value]")
+TEST_CASE("multiple-value-constructor-positional", "[Value]")
 {
   std::vector<int> v;
-  REQUIRE_FALSE(IntMultipleValue::make(v)->isFlag());
-  REQUIRE(IntMultipleValue::make(v)->getName() == "");
-  REQUIRE(IntMultipleValue::make(v)->getShortName() == '\0');
-  REQUIRE_FALSE(IntMultipleValue::make(v)->isSet());
+  REQUIRE_FALSE(PositionalMulitipleIntValue::make(v)->isFlag());
+  REQUIRE(PositionalMulitipleIntValue::make(v, "ARG")->getName() == "ARG");
+  REQUIRE(PositionalMulitipleIntValue::make(v)->getShortName() == '\0');
+  REQUIRE_FALSE(PositionalMulitipleIntValue::make(v)->isSet());
 }
 
 TEST_CASE("multiple-value-parse", "[Value]")
@@ -125,10 +126,10 @@ TEST_CASE("multiple-value-parse-invalid-value", "[Value]")
   REQUIRE(v.empty());
 }
 
-TEST_CASE("multiple-value-parse-unnamed", "[Value]")
+TEST_CASE("multiple-value-parse-positional", "[Value]")
 {
   std::vector<int> v;
-  auto value = IntMultipleValue::make(v);
+  auto value = PositionalMulitipleIntValue::make(v);
   int argc;
   const char * argv[] = { "progr", "1", "2", "3" };
   std::vector<std::string> err;
