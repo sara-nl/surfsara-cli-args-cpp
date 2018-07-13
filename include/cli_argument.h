@@ -123,8 +123,13 @@ namespace Cli
           ost << ",";
           col += 1;
         }
-        ost << "--" << name;
-        col += 2 + name.size();
+        if(!isPositional())
+        {
+          ost << "--";
+          col += 2;
+        }
+        ost << name;
+        col += name.size();
       }
       ost << "  ";
       col+= 2;

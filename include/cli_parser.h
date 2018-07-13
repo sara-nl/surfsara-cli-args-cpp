@@ -279,7 +279,7 @@ namespace Cli
         ost << description << std::endl;
         ost << std::endl;
       }
-      ost << "usage:" << program << " [OPTIONS]";
+      ost << "usage:" << program << " [OPTIONS] ";
       {
         std::size_t i = 0;
         for(auto arg : positionalArguments)
@@ -297,14 +297,27 @@ namespace Cli
         }
       }
       ost << std::endl;
+      if(!positionalArguments.empty())
+      {
+        ost << "arguments:" << std::endl;
+        ost << "---------" << std::endl;
+        std::size_t width = getArgumentsHelpWidth();
+        for(auto arg: positionalArguments)
+        {
+          arg->printHelp(ost, width);
+        }
+        ost << std::endl;
+      }
       if(!arguments.empty())
       {
         ost << "options:" << std::endl;
+        ost << "--------" << std::endl;
         std::size_t width = getArgumentsHelpWidth();
         for(auto arg: arguments)
         {
           arg->printHelp(ost, width);
         }
+        ost << std::endl;
       }
     }
 
@@ -313,6 +326,14 @@ namespace Cli
     {
       std::size_t width = 0;
       for(auto arg: arguments)
+      {
+        std::size_t w = arg->getArgumentsHelpWidth();
+        if(w > width)
+        {
+          width = w;
+        }
+      }
+      for(auto arg: positionalArguments)
       {
         std::size_t w = arg->getArgumentsHelpWidth();
         if(w > width)
