@@ -105,6 +105,7 @@ namespace Cli
 
     void setValue(const T & value)
     {
+      valueset = true;
       refValue = value;
     }
 
