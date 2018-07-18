@@ -60,6 +60,11 @@ namespace Cli
       return count > 0;
     }
 
+    void setValue(std::size_t _count)
+    {
+      count = _count;
+    }
+
     virtual bool isMultiple() const override
     {
       return true;

@@ -73,6 +73,12 @@ namespace Cli
       return refValue;
     }
 
+    void setValue(const T & value)
+    {
+      refValue = value;
+    }
+
+
     virtual bool isMultiple() const override
     {
       return false;

@@ -61,6 +61,11 @@ namespace Cli
       return flagset;
     }
 
+    void setValue(bool value)
+    {
+      flagset = value;
+    }
+
     virtual bool isMultiple() const override
     {
       return false;

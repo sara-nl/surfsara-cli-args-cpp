@@ -103,6 +103,11 @@ namespace Cli
       return refValue;
     }
 
+    void setValue(const std::vector<T> & value)
+    {
+      refValue = value;
+    }
+
     virtual bool isMultiple() const override
     {
       return true;

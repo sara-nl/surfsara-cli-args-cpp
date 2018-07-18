@@ -129,30 +129,6 @@ namespace Cli
       return arg;
     }
 
-    ////////////////////////////////////////////////////////////////////
-    // old interface
-    ////////////////////////////////////////////////////////////////////
-    std::shared_ptr<Argument> add(std::shared_ptr<Argument> arg)
-    {
-      if(arg->isPositional())
-      {
-        positionalArguments.push_back(arg);
-      }
-      else
-      {
-        arguments.push_back(arg);
-        if(!arg->getName().empty())
-        {
-          name2argument[arg->getName()] = arg;
-        }
-        if(arg->getShortName())
-        {
-          shortname2argument[arg->getShortName()] = arg;
-        }
-      }
-      return arg;
-    }
-    
     bool hasArgument(const std::string & name) const
     {
       return name2argument.find(name) != name2argument.end();
@@ -162,7 +138,32 @@ namespace Cli
     {
       return shortname2argument.find(shortname) != shortname2argument.end();
     }
-    
+
+    std::shared_ptr<Argument> getArgument(const std::string & name) const
+    {
+      auto itr = name2argument.find(name);
+      if(itr != name2argument.end())
+      {
+        return itr->second;
+      }
+      {
+        return std::shared_ptr<Argument>();
+      }
+    }
+
+    std::shared_ptr<Argument> getArgument(char shortname) const
+    {
+      auto itr = shortname2argument.find(shortname);
+      if(itr != shortname2argument.end())
+      {
+        return itr->second;
+      }
+      else
+      {
+        return std::shared_ptr<Argument>();
+      }
+    }
+
     bool isSet(const std::string & name) const
     {
       auto itr = name2argument.find(name);
@@ -189,6 +190,30 @@ namespace Cli
       }
     }
 
+    ////////////////////////////////////////////////////////////////////
+    // old interface
+    ////////////////////////////////////////////////////////////////////
+    std::shared_ptr<Argument> add(std::shared_ptr<Argument> arg)
+    {
+      if(arg->isPositional())
+      {
+        positionalArguments.push_back(arg);
+      }
+      else
+      {
+        arguments.push_back(arg);
+        if(!arg->getName().empty())
+        {
+          name2argument[arg->getName()] = arg;
+        }
+        if(arg->getShortName())
+        {
+          shortname2argument[arg->getShortName()] = arg;
+        }
+      }
+      return arg;
+    }
+    
     bool parse(int argc, const char ** argv) const
     {
       std::vector<std::string> err;
