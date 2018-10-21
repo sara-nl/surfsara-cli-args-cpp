@@ -22,6 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. */
 #pragma once
 #include "cli_argument.h"
+#include <typeinfo>
+#include <typeindex>
 
 namespace Cli
 {
@@ -80,6 +82,22 @@ namespace Cli
     {
       count++;
       return true;
+    }
+
+    virtual void streamOut(std::ostream & ost) const override
+    {
+      ost << count;
+    }
+
+    virtual const std::type_info& getTypeInfo() const override
+    {
+      return typeid(std::size_t);
+    }
+
+  protected:
+    virtual void * valueCastImpl(const std::type_info& ti) const override
+    {
+      return (void*)(&count);
     }
 
   private:

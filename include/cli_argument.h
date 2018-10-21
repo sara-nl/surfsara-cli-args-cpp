@@ -25,8 +25,14 @@ SOFTWARE. */
 #include <vector>
 #include <ostream>
 #include <memory>
+#include <typeinfo>
+#include <typeindex>
 #include "cli_doc.h"
 
+namespace Cli { class Argument; }
+
+inline std::ostream & operator<<(std::ostream & ost, const Cli::Argument & arg);
+  
 namespace Cli
 {
   class Argument
@@ -188,6 +194,19 @@ namespace Cli
       return ret;
     }
 
+    virtual void streamOut(std::ostream & ost) const = 0;
+    virtual const std::type_info& getTypeInfo() const = 0;
+
+    template<typename T>
+    const T & valueCast() const
+    {
+      if(std::type_index(typeid(T)) != std::type_index(getTypeInfo()))
+      {
+        throw std::bad_cast();
+      }
+      return *static_cast<T*>(valueCastImpl(typeid(T)));
+    }
+
   protected:
     Argument(char _shortname, const std::string & _name, const Doc & _doc)
       : doc(_doc.doc), shortname(_shortname), name(_name)
@@ -208,10 +227,18 @@ namespace Cli
         return std::string("--") + getName();
       }
     }
+    virtual void * valueCastImpl(const std::type_info& ti) const = 0;
 
   private:
     char shortname;
     std::string name;
     std::string doc;
   };
+}
+
+
+std::ostream & operator<<(std::ostream & ost, const Cli::Argument & arg)
+{
+  arg.streamOut(ost);
+  return ost;
 }

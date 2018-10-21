@@ -26,8 +26,10 @@ SOFTWARE. */
 #include <string>
 #include <sstream>
 #include <typeinfo>
+#include <typeindex>
 #include <memory>
 #include <iostream>
+#include <typeindex>
 
 namespace Cli
 {
@@ -144,6 +146,34 @@ namespace Cli
       {
         delete value;
       }
+    }
+
+    virtual void streamOut(std::ostream & ost) const override
+    {
+      bool first = true;
+      for(auto & p : refValue)
+      {
+        if(first)
+        {
+          first = false;
+        }
+        else
+        {
+          ost << ",";
+        }
+        ost << p;
+      }
+    }
+
+    virtual const std::type_info& getTypeInfo() const override
+    {
+      return typeid(vector_type);
+    }
+
+  protected:
+    virtual void * valueCastImpl(const std::type_info& ti) const override
+    {
+      return (void*)(&refValue);
     }
 
   private:

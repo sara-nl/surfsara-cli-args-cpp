@@ -189,6 +189,33 @@ namespace Cli
       }
     }
 
+    std::shared_ptr<Argument> getArgument(const std::string & name) const
+    {
+      auto itr = name2argument.find(name);
+      if(itr == name2argument.end())
+      {
+        return std::shared_ptr<Argument>();
+      }
+      else
+      {
+        return itr->second;
+      }
+    }
+
+    std::shared_ptr<Argument> getArgument(char shortname) const
+    {
+      auto itr = shortname2argument.find(shortname);
+      if(itr == shortname2argument.end())
+      {
+        return std::shared_ptr<Argument>();
+      }
+      else
+      {
+        return itr->second;
+      }
+    }
+
+    
     bool parse(int argc, const char ** argv) const
     {
       std::vector<std::string> err;

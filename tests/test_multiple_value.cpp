@@ -94,6 +94,9 @@ TEST_CASE("multiple-value-parse-twice", "[Value]")
   REQUIRE_FALSE(value->parse(sizeof(argv2)/sizeof(char*), argv2, i, err));
   REQUIRE(err.size() == 1u);
   REQUIRE(v == std::vector<int>({12}));
+  REQUIRE(value->valueCast<std::vector<int>>() == std::vector<int>({12}));
+  REQUIRE_THROWS(value->valueCast<std::string>());
+
 }
 
 TEST_CASE("multiple-value-parse-argument-required", "[Value]")
