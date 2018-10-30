@@ -81,6 +81,8 @@ TEST_CASE("value-parse", "[Value]")
   REQUIRE(value->isSet());
   REQUIRE(i == 2);
   REQUIRE(v == 12);
+  REQUIRE(value->valueCast<int>() == 12);
+  REQUIRE_THROWS(value->valueCast<std::string>());
 }
 
 TEST_CASE("value-parse-twice", "[Value]")

@@ -26,6 +26,7 @@ SOFTWARE. */
 #include <string>
 #include <sstream>
 #include <typeinfo>
+#include <typeindex>
 #include <memory>
 
 
@@ -110,7 +111,24 @@ namespace Cli
         delete value;
       }
     }
-    
+
+    virtual void streamOut(std::ostream & ost) const override
+    {
+      ost << refValue;
+    }
+
+    virtual const std::type_info& getTypeInfo() const override
+    {
+      return typeid(T);
+    }
+
+  protected:
+    virtual void * valueCastImpl(const std::type_info& ti) const override
+    {
+      return (void*)(&refValue);
+    }
+
+
   private:
     T * value;
     T & refValue;

@@ -213,7 +213,7 @@ namespace Cli
       }
       return arg;
     }
-    
+
     bool parse(int argc, const char ** argv) const
     {
       std::vector<std::string> err;

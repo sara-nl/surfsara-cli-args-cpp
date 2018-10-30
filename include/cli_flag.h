@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE. */
 #pragma once
 #include <memory>
+#include <typeinfo>
 #include "cli_argument.h"
 
 namespace Cli
@@ -93,6 +94,22 @@ namespace Cli
         flagset = true;
         return true;
       }
+    }
+
+    virtual void streamOut(std::ostream & ost) const override
+    {
+      ost << flagset;
+    }
+
+    virtual const std::type_info& getTypeInfo() const override
+    {
+      return typeid(bool);
+    }
+
+  protected:
+    virtual void * valueCastImpl(const std::type_info& ti) const override
+    {
+      return (void*)(&flagset);
     }
 
   private:
