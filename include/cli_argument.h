@@ -56,7 +56,7 @@ namespace Cli
     bool parse(int argc, const char ** argv,
                        int & i, std::vector<std::string> & err)
     {
-      parseArgument(argc, argv, i, err);
+      return parseArgument(argc, argv, i, err);
     }
 
     bool parse(int argc, const char ** argv, int & i)
@@ -67,7 +67,7 @@ namespace Cli
 
     bool parse(int argc, const char ** argv, std::vector<std::string> & err)
     {
-      int i;
+      int i = 0;
       return parseArgument(argc, argv, i, err);
     }
 
