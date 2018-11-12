@@ -198,6 +198,12 @@ namespace Cli
     virtual const std::type_info& getTypeInfo() const = 0;
 
     template<typename T>
+    bool isA() const
+    {
+      return std::type_index(typeid(T)) == std::type_index(getTypeInfo());
+    }
+    
+    template<typename T>
     const T & valueCast() const
     {
       if(std::type_index(typeid(T)) != std::type_index(getTypeInfo()))
