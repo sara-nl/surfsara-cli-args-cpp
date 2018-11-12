@@ -346,6 +346,11 @@ namespace Cli
       }
     }
 
+    const std::vector<std::shared_ptr<Argument> > & getArguments() const
+    {
+      return arguments;
+    }
+
   private:
     std::size_t getArgumentsHelpWidth() const
     {
