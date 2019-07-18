@@ -1,2 +1,2 @@
-CXX=clang++-5.0 cmake ../
+CXX=clang++ cmake ../
 make

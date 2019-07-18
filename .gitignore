@@ -1,4 +1,6 @@
 runtests
 build-test-gcc/example_01
 build-test-gcc/example_02
+build-test-clang/example_01
+build-test-clang/example_02
 *~
